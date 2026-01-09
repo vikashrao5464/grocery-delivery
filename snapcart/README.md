@@ -1,14 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SnapCart
+
+A modern e-commerce application built with Next.js 16, featuring MongoDB integration and secure authentication.
+
+## Tech Stack
+
+- **Framework**: Next.js 16.1.1 (App Router)
+- **UI**: React 19, TailwindCSS 4
+- **Database**: MongoDB (via Mongoose)
+- **Authentication**: bcryptjs
+- **HTTP Client**: Axios
+- **Language**: TypeScript
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
+# or 
 pnpm dev
 # or
 bun dev
