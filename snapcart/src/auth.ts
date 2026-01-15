@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials"
 import connectDb from "./lib/db"
 import User from "./models/user.model";
 import bcrypt from "bcryptjs";
+import google from "@auth/core/providers/google";
+
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -31,9 +33,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         role:user.role
        }
       }
+    }),
+    google({
+      clientId:process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret:process.env.GOOGLE_CLIENT_SECRET as string
     })
   ],
   callbacks:{
+  // for google provider
+  async signIn({user,account}){
+    if(account?.provider==="google"){
+      connectDb();
+      // check if user already exists
+      let dbUser=await User.findOne({email:user.email});
+      if(!dbUser){
+        // create new user
+      dbUser=await User.create({
+        name:user.name ,
+        email:user.email,
+        image:user.image,
+      })
+      }
+
+      user.id=dbUser._id.toString();
+      user.role=dbUser.role;
+    }
+    return true;
+  },
+
+
+    // jwt use for credentials provider
 // jwt token ke andar user ka data dalte h
 // here token is generated at the time of sign in
 // and sent to the client
