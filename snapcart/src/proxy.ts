@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function proxy(req:NextRequest){gti 
+export async function proxy(req:NextRequest){
    const {pathname}=req.nextUrl;
   //  console.log("Proxy middleware triggered for path:",pathname);
    const publicRoutes=["/login","/register","/api/auth","/favicon.ico","/_next"]
