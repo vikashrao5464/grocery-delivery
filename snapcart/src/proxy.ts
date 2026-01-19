@@ -10,7 +10,7 @@ export async function proxy(req:NextRequest){
 }
 
 const token=await getToken({req,secret:process.env.AUTH_SECRET});
-console.log("Token in proxy:",token);
+// console.log("Token in proxy:",token);
 if(!token){
   // Redirect to login
   // append login to the current url
