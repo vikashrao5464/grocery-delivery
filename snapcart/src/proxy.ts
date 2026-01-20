@@ -20,10 +20,21 @@ if(!token){
   // console.log(loginUrl)
   return NextResponse.redirect(loginUrl);
 }
-return NextResponse.next();
+
+const role = token.role as string;
+
+if(pathname.startsWith("/admin") && role !== "admin"){
+  return NextResponse.redirect(new URL("/unauthorized", req.url));
+}
+if(pathname.startsWith("/deliveryBoy") && role !== "deliveryBoy"){
+  return NextResponse.redirect(new URL("/unauthorized", req.url));
+}
+if(pathname.startsWith("/user") && role !== "user"){
+  return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
 
-
+return NextResponse.next();
+}
 export const config={
   matcher:["/((?!api/auth|favicon.ico|_next/static|_next/image|assets|images).*)"]
 }

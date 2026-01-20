@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import mongoose from 'mongoose';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Cross, LogOut, Package, Search, SearchCheck, ShoppingCartIcon, User, UserCircle, X } from 'lucide-react';
+import { Cross, LogOut, Package, PlusCircle, Search, SearchCheck, ShoppingCartIcon, User, UserCircle, X ,Boxes, ClipboardCheck} from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import {motion} from 'motion/react';
 import { signOut } from 'next-auth/react';
@@ -39,14 +39,18 @@ function Nav ({user}:{user:IUser}) {
 
       <Link href={"/"} className='text-white font-extrabold text-2xl sm:text-3xl tracking-wide hover:scale-105 transition-transform '>snapCart
       </Link>
-     
-      <form className='hidden md:flex items-center bg-white rounded-full px-4 py-2 w-1/2 max-w-lg shadow-md'>
+
+
+
+     {user.role==="user" &&   <form className='hidden md:flex items-center bg-white rounded-full px-4 py-2 w-1/2 max-w-lg shadow-md'>
       <Search className='text-gray-500 w-5 h-5 mr-2'/>
       <input type="text" placeholder='Search Grocries...' className='w-full outline-none text-gray-700 placeholder-gray-400'/>
-      </form>
-
+      </form>}
+     
+     {/* for smaller screen search button */}
       <div className='flex items-center gap-3 md:gap-6 relative'>
-        <div className='bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition md:hidden' onClick={()=>setSearchBarOpen(prev=>!prev)}>
+
+        {user.role==="user" && <> <div className='bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition md:hidden' onClick={()=>setSearchBarOpen(prev=>!prev)}>
           <Search className='text-green-600 w-6 h-6'/>
 
         </div>
@@ -54,7 +58,20 @@ function Nav ({user}:{user:IUser}) {
         <Link href={""} className='relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition'>
          <ShoppingCartIcon className='text-green-600 w-6 h-6 '/>
          <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow '>0</span>
-        </Link>
+        </Link></>}
+
+        {/* Nav for admin  */}
+        {user.role==="admin" && 
+        <>
+        <div className='hidden md:flex items-center gap-4 '>
+          <Link href={""} className='flex items-center gap-2 bg-white text-green-700 font-semibold px-4 py-2 rounded-full hover:bg-green-100 transition-all'> <PlusCircle className='w-5 h-5 '/>
+          Add Grocery</Link>
+          <Link href={""} className='flex items-center gap-2 bg-white text-green-700 font-semibold px-4 py-2 rounded-full hover:bg-green-100 transition-all'> <Boxes className='w-5 h-5 '/> View grocery</Link>
+          <Link href={""} className='flex items-center gap-2 bg-white text-green-700 font-semibold px-4 py-2 rounded-full hover:bg-green-100 transition-all'><ClipboardCheck className='w-5 h-5'/> Manage Orders</Link>
+        </div>
+        </>
+        }
+        
       
       <div className='relative' ref={profileDropDown}>
         <div className='bg-white rounded-full w-11 h-11 flex items-center justify-center overflow-hidden shadow-md hover:scale-105 transition-transform ' onClick={()=>setOpen(prev=>!prev)}>
@@ -80,11 +97,11 @@ function Nav ({user}:{user:IUser}) {
                   <div className='text-xs text-gray-500 capitalize'>{user.role}</div>
                 </div>
               </div>
-
-              <Link href={""} className='flex items-center gap-2 px-3 py-3 hover:bg-green-50 rounded-lg text-gray-700 font-medium' onClick={()=>setOpen(false)}>
+              {user.role==="user" &&  <Link href={""} className='flex items-center gap-2 px-3 py-3 hover:bg-green-50 rounded-lg text-gray-700 font-medium' onClick={()=>setOpen(false)}>
               <Package className='w-5 h-5 text-green-600 '/>
               My Orders
-              </Link>
+              </Link>}
+             
 
               <button className='flex items-center gap-2 w-full text-left px-3 py-3 hover:bg-red-50 rounded-lg text-gray-700 font-medium' onClick={()=>{
                 setOpen(false)
@@ -95,8 +112,12 @@ function Nav ({user}:{user:IUser}) {
               </button>
 
               </motion.div>}
-          </AnimatePresence>
+          </AnimatePresence> 
 
+
+           {/* profile dropdown end */}
+          {/* search bar for mobile */}
+          
           <AnimatePresence>
             {searchBarOpen 
             && 

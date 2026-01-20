@@ -51,7 +51,7 @@ useEffect(()=>{
 
   return (
     <div className='relative w-[98%] mx-auto mt-32 h-[80vh] rounded-3xl overflow-hidden shadow-2xl'>
-      <AnimatePresence mode='wait'>
+      <AnimatePresence mode='sync'>
       <motion.div
       key={current}
       initial={{opacity:0}}

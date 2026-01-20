@@ -70,13 +70,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 // we can add custom fields to the token
 // for example, we are adding id, email and name to the token
 
-   jwt({token,user}){
+   jwt({token,user,trigger,session}){
     if(user){
       token.id=user.id
       token.email=user.email,
       token.name=user.name,
       // token.role=user.role this is only available in runtime  we cannot directly assign .we have to typecast it globally in   next-auth.d.ts
       token.role=user.role
+    }
+    if(trigger=="update"){
+      token.role=session.role 
     }
     return token;
    },
