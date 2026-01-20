@@ -24,7 +24,7 @@ const HeroSection = () => {
     {
      id:2,
      icon:<Truck className="h-20 w-20 sm:w-28 sm:h-28 text-yellow-400 drop-shadow-lg" />,
-     title:"Fast & relable Delivery 🚚",
+     title:"Fast & reliable Delivery 🚚",
      subtitle:"Get your groceries delivered to your doorstep quickly and reliably with our efficient delivery service.",
      btnText:"Order Now",
      bg:"https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?q=80&w=1115&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
