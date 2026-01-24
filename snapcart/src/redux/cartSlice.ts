@@ -32,11 +32,27 @@ const cartSlice=createSlice({
     // here state is the current state of the user slice and action is the data which we want to store in the user slice and payload is the actual data inside the action
     addToCart:(state,action:PayloadAction<IGrocery>)=>{
       state.cartData.push(action.payload)
+    },
+    // action payload is the id of the item to be added to the cart
+    increaseQuantity:(state,action:PayloadAction<mongoose.Types.ObjectId>)=>{
+      const item=state.cartData.find(i=>i._id===action.payload)
+      if(item){
+        item.quantity=item.quantity+1;
+      }
+    },
+    decreaseQuantity:(state,action:PayloadAction<mongoose.Types.ObjectId>)=>{
+      const item=state.cartData.find(i=>i._id===action.payload)
+      if(item?.quantity && item.quantity>1){
+        item.quantity=item.quantity-1;
+      }else{
+        // remove the item from the cart if quantity is 1
+       state.cartData = state.cartData.filter(i=>i._id!==action.payload)
+      }
     }
   }
 }
 )
 // exporting the action to be used in the components
-export const {addToCart}=cartSlice.actions
+export const {addToCart,increaseQuantity,decreaseQuantity}=cartSlice.actions
 // exporting the reducer to be used in the store
 export default cartSlice.reducer
