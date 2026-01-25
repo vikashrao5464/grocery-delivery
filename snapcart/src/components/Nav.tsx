@@ -83,7 +83,7 @@ function Nav({ user }: { user: IUser }) {
     </AnimatePresence>, document.body
   ) : null
   return (
-    <div className='w-[95%] fixed top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500  to-green-700 rounded-2xl shadow-lg shadow-black/30 flex justify-between items-center h-20 px-4 md:px-8 z-50 ' >
+    <div className='w-[95%] fixed top-4 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500  to-green-700 rounded-2xl shadow-lg shadow-black/30 flex justify-between items-center h-20 px-4 md:px-8 z-50 ' >
 
       <Link href={"/"} className='text-white font-extrabold text-2xl sm:text-3xl tracking-wide hover:scale-105 transition-transform '>snapCart
       </Link>
@@ -103,7 +103,7 @@ function Nav({ user }: { user: IUser }) {
 
         </div>
 
-          <Link href={""} className='relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition'>
+          <Link href={"/user/cart"} className='relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition'>
             <ShoppingCartIcon className='text-green-600 w-6 h-6 ' />
             <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow '>{cartData.length}</span>
           </Link></>}
