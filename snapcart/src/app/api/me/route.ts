@@ -1,5 +1,6 @@
 // api for getting logged in user details
 import { auth } from '@/auth'
+import connectDb from '@/lib/db';
 import User from '@/models/user.model';
 import { NextResponse } from 'next/server';
 import React from 'react'
@@ -7,6 +8,7 @@ import React from 'react'
 export async function GET(request:Request){
 
   try{
+    await connectDb();
 const session= await auth();
 if(!session || !session.user){
   return NextResponse.json(
