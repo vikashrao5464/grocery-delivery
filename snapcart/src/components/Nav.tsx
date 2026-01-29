@@ -148,7 +148,7 @@ function Nav({ user }: { user: IUser }) {
                     <div className='text-xs text-gray-500 capitalize'>{user.role}</div>
                   </div>
                 </div>
-                {user.role === "user" && <Link href={""} className='flex items-center gap-2 px-3 py-3 hover:bg-green-50 rounded-lg text-gray-700 font-medium' onClick={() => setOpen(false)}>
+                {user.role === "user" && <Link href={"/user/my-orders"} className='flex items-center gap-2 px-3 py-3 hover:bg-green-50 rounded-lg text-gray-700 font-medium' onClick={() => setOpen(false)}>
                   <Package className='w-5 h-5 text-green-600 ' />
                   My Orders
                 </Link>}

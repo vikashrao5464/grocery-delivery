@@ -4,7 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function proxy(req:NextRequest){
    const {pathname}=req.nextUrl;
   //  console.log("Proxy middleware triggered for path:",pathname);
-   const publicRoutes=["/login","/register","/api/auth","/favicon.ico","/_next"]
+   
+   // Public routes that don't require authentication
+   // IMPORTANT: Stripe webhook routes must be public for Stripe to call them
+   const publicRoutes=[
+     "/login",
+     "/register",
+     "/api/auth",
+
+     "/api/user/stripe/webhook",   // Old webhook path - also must be public
+     "/favicon.ico",
+     "/_next"
+   ]
    if(publicRoutes.some(path=>pathname.startsWith(path))){
     return NextResponse.next();
 }

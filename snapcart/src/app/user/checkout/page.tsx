@@ -28,13 +28,13 @@ function Checkout() {
   const router = useRouter();
   // getting user data from redux store
   const { userData } = useSelector((state: RootState) => state.user)
- const {subTotal,deliveryFee,finalTotal}=useSelector((state:RootState)=>state.cart);
+  const { subTotal, deliveryFee, finalTotal, cartData } = useSelector((state: RootState) => state.cart);
 
   // state for search query in search field of address
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   // state for payment method
-  const [paymentMethod,setPaymentMethod]=useState<"cod" | "online">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
 
   // state for address details
 
@@ -47,6 +47,18 @@ function Checkout() {
     fullAddress: ""
 
   })
+
+  // Add a function to validate address fields
+ const isAddressValid = () => {
+  return (
+    (address.fullName || "").trim() !== "" &&
+    (address.mobile || "").trim() !== "" &&
+    (address.city || "").trim() !== "" &&
+    (address.state || "").trim() !== "" &&
+    (address.pincode || "").trim() !== "" &&
+    (address.fullAddress || "").trim() !== ""
+  );
+};
 
   // for map we use leaflet opensource js library
   // for getting user location
@@ -112,7 +124,7 @@ function Checkout() {
   }
 
 
-// function for handling search query
+  // function for handling search query
   const handleSearchQuery = async () => {
     setSearchLoading(true);
     // function for handling search query
@@ -141,6 +153,82 @@ function Checkout() {
 
 
   }, [position])
+
+
+  // function for handling cod order
+  const handleCod = async () => {
+    if (!position) {
+      return null;
+    }
+    try {
+      const result = await axios.post("/api/user/order", {
+        userId: userData?._id,
+        items: cartData.map((item) => ({
+          grocery: item._id,
+          name: item.name,
+          price: item.price,
+          unit: item.unit,
+          quantity: item.quantity,
+          image: item.image,
+
+        })),
+        totalAmount: finalTotal,
+        address: {
+          fullName: address.fullName,
+          mobile: address.mobile,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          fullAddress: address.fullAddress,
+          latitude: position[0],
+          longitude: position[1],
+        },
+        paymentMethod,
+      })
+
+    router.push("/user/order-success")
+    } catch (error) {
+      console.log("order place error:", error);
+    }
+  }
+
+  // function for handling online payment order
+    const handleOnlinePayment = async () => {
+    if (!position) {
+      return null;
+    }
+    try {
+      const result = await axios.post("/api/user/payment", {
+        userId: userData?._id,
+        items: cartData.map((item) => ({
+          grocery: item._id,
+          name: item.name,
+          price: item.price,
+          unit: item.unit,
+          quantity: item.quantity,
+          image: item.image,
+
+        })),
+        totalAmount: finalTotal,
+        address: {
+          fullName: address.fullName,
+          mobile: address.mobile,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          fullAddress: address.fullAddress,
+          latitude: position[0],
+          longitude: position[1],
+        },
+        paymentMethod,
+      })
+    // redirecting to stripe hosted payment page
+    window.location.href=result.data.url;
+   
+    } catch (error) {
+      console.log("online payment place error:", error);
+    }
+  }
 
 
   return (
@@ -251,30 +339,30 @@ function Checkout() {
         {/* order summary column */}
 
         <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className='bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 h-fit'
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className='bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 h-fit'
         >
           <h2 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2 '>
-           <CreditCard /> Payment Method</h2>
+            <CreditCard /> Payment Method</h2>
 
           {/* .payment mthods */}
-           <div className='space-y-4 mb-6'>
-              {/* online payment buttons */}
-            <button className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod==="online" ? "border-green-600 bg-green-50  shadow-sm":
-             "hover:bg-gray-50"
-            }`} onClick={()=>setPaymentMethod("online")}>
-              <CreditCardIcon className='text-green-600 '/><span className='font-medium text-gray-700'>Pay Online (stripe)</span>
+          <div className='space-y-4 mb-6'>
+            {/* online payment buttons */}
+            <button className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod === "online" ? "border-green-600 bg-green-50  shadow-sm" :
+              "hover:bg-gray-50"
+              }`} onClick={() => setPaymentMethod("online")}>
+              <CreditCardIcon className='text-green-600 ' /><span className='font-medium text-gray-700'>Pay Online (stripe)</span>
             </button>
 
             {/* cod button */}
-            <button className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod==="cod" ? "border-green-600 bg-green-50  shadow-sm":
-             "hover:bg-gray-50"
-            }`} onClick={()=>setPaymentMethod("cod")}>
-              <Truck className='text-green-600 '/><span className='font-medium text-gray-700'>Cash on Delivery</span>
+            <button className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod === "cod" ? "border-green-600 bg-green-50  shadow-sm" :
+              "hover:bg-gray-50"
+              }`} onClick={() => setPaymentMethod("cod")}>
+              <Truck className='text-green-600 ' /><span className='font-medium text-gray-700'>Cash on Delivery</span>
             </button>
-           </div>
+          </div>
 
 
 
@@ -295,11 +383,23 @@ function Checkout() {
           </div>
 
           {/* button for placing order */}
-          <motion.button 
-          whileTap={{scale:0.93}}
-          className='w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold '
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            className='w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold '
+            onClick={() => {
+              if (!isAddressValid()) {
+                alert("Please fill in all address details before placing the order.");
+                return;
+              }
+              if (paymentMethod === "cod") {
+                handleCod()
+              } else {
+                handleOnlinePayment()
+                
+              }
+            }}
           >
-            {paymentMethod==="cod" ? "Place Order" : "Pay & Place Order"}
+            {paymentMethod === "cod" ? "Place Order" : "Pay & Place Order"}
           </motion.button>
         </motion.div>
 

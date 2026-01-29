@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 
-interface IOrder{
+export interface IOrder{
   _id:mongoose.Types.ObjectId,
   user:mongoose.Types.ObjectId,
+  isPaid:boolean,
   items:[
     {
       grocery:mongoose.Types.ObjectId,
@@ -13,7 +14,7 @@ interface IOrder{
       quantity:number,
     }
   ]
-  totalAmount:string,
+  totalAmount:number,
   paymentMethod:"cod" | "online",
   address:{
     fullName:string,
@@ -36,6 +37,10 @@ user:{
   ref:"User",
   required:true,
 },
+isPaid:{
+  type:Boolean,
+  default:false,
+},
 items:[{
   grocery:{
     type:mongoose.Schema.Types.ObjectId,
@@ -49,7 +54,7 @@ items:[{
   quantity:Number,
 }],
 totalAmount:{
-  type:String,
+  type:Number,
   required:true,
 },
 paymentMethod:{
@@ -73,7 +78,7 @@ status:{
 }
 
 
-})
+},{timestamps:true});
 
 const Order=mongoose.models.Order || mongoose.model<IOrder>("Order",orderSchema);
 export default Order;
