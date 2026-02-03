@@ -74,7 +74,8 @@ address:{
 },
 status:{
   type:String,
-  enum:["pending","out of delivery" , "delivered"]
+  enum:["pending","out of delivery" , "delivered"],
+  default:"pending"
 }
 
 
