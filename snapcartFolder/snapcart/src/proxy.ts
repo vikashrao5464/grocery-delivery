@@ -11,7 +11,7 @@ export async function proxy(req:NextRequest){
      "/login",
      "/register",
      "/api/auth",
-
+     "/api/socket/connect",        // Socket.IO server needs to call this
      "/api/user/stripe/webhook",   // Old webhook path - also must be public
      "/favicon.ico",
      "/_next"

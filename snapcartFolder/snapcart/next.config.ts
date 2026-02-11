@@ -5,11 +5,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   images:{
     remotePatterns:[
-      {hostname:"lh3.googleusercontent.com"},
-      {hostname:"media.istockphoto.com"},
-      {hostname:"images.unsplash.com"},
-      {hostname:"res.cloudinary.com"}
-    ]
+      {protocol: 'https',hostname:"lh3.googleusercontent.com"},
+      {protocol: 'https',hostname:"media.istockphoto.com"},
+      {protocol: 'https',hostname:"images.unsplash.com"},
+      {protocol: 'https',hostname:"res.cloudinary.com"}
+    ],
+      dangerouslyAllowSVG: true,
+    unoptimized: true 
   }
 
 };

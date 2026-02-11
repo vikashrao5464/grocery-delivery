@@ -18,6 +18,8 @@ interface IUser{
         default: number[];
     };
 };
+socketId:string | null;
+isOnline:boolean; 
 }
 
 
@@ -59,6 +61,14 @@ location:{
     default:[0,0]
     // Default coordinates (longitude, latitude) set to (0, 0)
   }
+},
+socketId:{
+  type:String,
+  default:null
+},
+isOnline:{
+  type:Boolean,
+  default:false
 }
 },{timestamps:true});
 
