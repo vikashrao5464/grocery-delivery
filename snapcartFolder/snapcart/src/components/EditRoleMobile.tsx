@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {motion} from "motion/react"
 import axios from 'axios'
 import { ArrowRight, Bike, User, UserCog } from 'lucide-react'
@@ -32,6 +32,22 @@ const EditRoleMobile = () => {
    console.log("error:",error);
   }
   }
+
+
+  useEffect(()=>{
+    const checkForAdmin=async()=>{
+    try{
+   const result=await axios.get("/api/check-for-admin");
+     if(result.data.adminExist){
+      setRoles(prev=>prev.filter(r=>r.id!=="admin"))
+     }
+    }catch(error){
+    console.log("check for admin error:",error)
+    }
+  }
+    checkForAdmin();
+  },[])
+  
   return (
     <div className='flex flex-col items-center min-h-screen p-6 w-full '>
       <motion.h1

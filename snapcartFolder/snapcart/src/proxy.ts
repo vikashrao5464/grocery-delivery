@@ -11,7 +11,8 @@ export async function proxy(req:NextRequest){
      "/login",
      "/register",
      "/api/auth",
-     "/api/socket/connect",        // Socket.IO server needs to call this
+     "/api/socket/connect", 
+     "/api/socket/update-location",       // Socket.IO server needs to call this
      "/api/user/stripe/webhook",   // Old webhook path - also must be public
      "/favicon.ico",
      "/_next"
@@ -37,7 +38,7 @@ const role = token.role as string;
 if(pathname.startsWith("/admin") && role !== "admin"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
-if(pathname.startsWith("/deliveryBoy") && role !== "deliveryBoy"){
+if(pathname.startsWith("/delivery") && role !== "deliveryBoy"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
 if(pathname.startsWith("/user") && role !== "user"){

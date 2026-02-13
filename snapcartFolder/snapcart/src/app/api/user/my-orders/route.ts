@@ -9,7 +9,7 @@ export async function GET(req:NextRequest){
      const session=await auth();
     //  the populate method is a Mongoose function used to automatically replace the specified path 
     // it fetches and embeds the full user details in each order, instead of just the user ID.
-     const orders=await Order.find({user:session?.user?.id}).populate("user").lean();
+     const orders=await Order.find({user:session?.user?.id}).populate("user").sort({createdAt:-1});
 
      if(!orders){
       return NextResponse.json({message:"no orders found"}, {status:400})

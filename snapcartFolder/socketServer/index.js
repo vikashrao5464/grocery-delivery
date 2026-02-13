@@ -28,12 +28,21 @@ const io=new Server(server,{
 // Listens for new client connections to the Socket.IO server
 // Triggered every time a client successfully connects
 io.on('connection',(socket)=>{
-  console.log('a user connected',socket.id);
+  
 
   // Listens for an "identity" event from the connected client, which should include a userId. When this event is received, it logs the userId to the console. This allows the server to associate the socket connection with a specific user.
   socket.on("identity",async (userId)=>{
-    console.log(userId)
+    
     await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/connect`,{userId,socketId:socket.id})
+  })
+
+  socket.on("update-location",async ({userId,latitude,longitude})=>{
+
+    const location={
+      type:"Point",
+      coordinates:[longitude,latitude]
+    }
+    await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/update-location`,{userId,location})
   })
 
   socket.on('disconnect',()=>{

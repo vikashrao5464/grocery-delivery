@@ -7,25 +7,16 @@ import { useState } from 'react'
 import Image from 'next/image'
 import img1 from '../../public/img 1.svg'
 import img2 from '../../public/img 2.svg'
-import { getSocket } from '@/lib/socket'
-import { useSelector } from 'react-redux'
-import { Root } from 'react-dom/client'
-import { RootState } from '@/redux/store'
+
+
+
 
 
 const HeroSection = () => {
 
-    const {userData}=useSelector((state:RootState)=>state.user);
-
-  // Initialize socket connection when the component mounts, and clean up when it unmounts,it can only be used in client component
-  useEffect(()=>{
-    let socket=getSocket();
-    if(userData){
-      socket.emit("identity",userData._id);
-    }
-  },[userData])
 
 
+  
   const slides=[
     
     {

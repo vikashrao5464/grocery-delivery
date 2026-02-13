@@ -8,6 +8,7 @@ import Nav from "@/components/Nav";
 import UserDashboard from "@/components/UserDashboard";
 import AdminDashboard from "@/components/AdminDashboard";
 import DeliveryBoy from "@/components/DeliveryBoy";
+import GeoUpdater from "@/components/GeoUpdater";
 // this is home page for editing mobile and role and
 // this is server component
 
@@ -28,6 +29,7 @@ export default async function Home() {
 
     <>
       <Nav user={plainUser} />
+      <GeoUpdater userId={plainUser._id} />
       {user.role === "user" ? (
         <UserDashboard />
       ) : user.role === "admin" ? (
