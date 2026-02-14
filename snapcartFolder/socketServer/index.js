@@ -37,7 +37,7 @@ io.on('connection',(socket)=>{
     
     await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/connect`,{userId,socketId:socket.id})
   })
-
+// Listens for an "update-location" event from the client, which should include a userId, latitude, and longitude. When this event is received, it constructs a GeoJSON Point object with the provided coordinates and sends a POST request to the server's API endpoint to update the user's location in the database. This allows the server to keep track of the user's real-time location.
   socket.on("update-location",async ({userId,latitude,longitude})=>{
 
     const location={
@@ -45,7 +45,11 @@ io.on('connection',(socket)=>{
       coordinates:[longitude,latitude]
     }
     await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/update-location`,{userId,location})
+
+     io.emit("update-deliveryBoy-location",{userId,location})
   })
+
+ 
 
   socket.on('disconnect',()=>{
     console.log('user disconnected',socket.id);

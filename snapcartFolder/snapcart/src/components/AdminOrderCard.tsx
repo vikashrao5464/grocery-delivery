@@ -1,17 +1,52 @@
 'use client'
-import React, { useState } from 'react'
-import { IOrder } from '@/models/order.model';
+import React, { useState,useEffect } from 'react'
+
 import {motion} from 'motion/react';
 import axios from 'axios';
-import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Phone, Truck, User } from 'lucide-react';
+import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Phone, Truck, User, UserCheck } from 'lucide-react';
 import Image from 'next/image';
+import mongoose from 'mongoose';
+import { IUser } from '@/models/user.model';
+
+interface IOrder{
+  _id:mongoose.Types.ObjectId,
+  user:mongoose.Types.ObjectId,
+  isPaid:boolean,
+  items:[
+    {
+      grocery:mongoose.Types.ObjectId,
+      name:string,
+      price:string,
+      unit:string,
+      image:string,
+      quantity:number,
+    }
+  ]
+  totalAmount:number,
+  paymentMethod:"cod" | "online",
+  address:{
+    fullName:string,
+    mobile:string,
+    city:string,
+    state:string,
+    pincode:string,
+    fullAddress:string,
+    latitude:number,
+    longitude:number,
+  },
+  assignment:mongoose.Types.ObjectId,
+  assignedDeliveryBoy?:IUser,
+  status:"pending" | "out of delivery" | "delivered",
+  createdAt?:Date,
+  updatedAt?:Date
+}
 
 function AdminOrderCard({ order }: { order: IOrder }) {
 
 
   const statusOptions=["pending","out of delivery"]
   const [expanded, setExpanded] =useState(false);
-  const [status,setStatus]=useState<string>(order.status);
+  const [status,setStatus]=useState<string>("pending");
 
  const updateStatus=async(orderId:string,status:string)=>{
   try{
@@ -22,6 +57,10 @@ function AdminOrderCard({ order }: { order: IOrder }) {
   console.log("update status error",error)
   }
  }
+
+ useEffect(()=>{
+  setStatus(order.status);
+ },[order])
   return (
  <motion.div
  key={order._id?.toString()}
@@ -66,6 +105,23 @@ function AdminOrderCard({ order }: { order: IOrder }) {
           <CreditCard size={16} className='text-green-600'/>
           <span>{order.paymentMethod==="cod" ? "Cash on Delivery" : "Online Payment"}</span>
         </p>
+
+       {/* Display assigned delivery boy details if order has been assigned to a delivery person */}
+        {order.assignedDeliveryBoy && <div className='mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between'>
+          <div className='flex items-center gap-3 text-sm text-gray-700'>
+            <UserCheck size={18} className='text-blue-600'/>
+
+            <div>
+              <p>Assigned To: <span className='font-semibold'>{order.assignedDeliveryBoy.name}</span></p>
+              <p className='text-xs text-gray-600'>📞 +91 {order.assignedDeliveryBoy.mobile}</p>
+            </div>
+          </div>
+
+
+        <a href={`tel:${order.assignedDeliveryBoy.mobile}`} className='bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700 transition'>
+          Call
+        </a>
+          </div>}
 
     </div>
 

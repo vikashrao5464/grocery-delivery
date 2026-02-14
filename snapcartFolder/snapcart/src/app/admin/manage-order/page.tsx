@@ -1,11 +1,46 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { IOrder } from '@/models/order.model';
+
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import AdminOrderCard from '@/components/AdminOrderCard';
 import { getSocket } from '@/lib/socket';
+import mongoose from 'mongoose';
+import { IUser } from '@/models/user.model';
+
+interface IOrder{
+  _id:mongoose.Types.ObjectId,
+  user:mongoose.Types.ObjectId,
+  isPaid:boolean,
+  items:[
+    {
+      grocery:mongoose.Types.ObjectId,
+      name:string,
+      price:string,
+      unit:string,
+      image:string,
+      quantity:number,
+    }
+  ]
+  totalAmount:number,
+  paymentMethod:"cod" | "online",
+  address:{
+    fullName:string,
+    mobile:string,
+    city:string,
+    state:string,
+    pincode:string,
+    fullAddress:string,
+    latitude:number,
+    longitude:number,
+  },
+  assignment:mongoose.Types.ObjectId,
+  assignedDeliveryBoy?:IUser,
+  status:"pending" | "out of delivery" | "delivered",
+  createdAt?:Date,
+  updatedAt?:Date
+}
 
 
 function ManageOrders() {
@@ -53,7 +88,7 @@ function ManageOrders() {
       {/* orders mapping */}
       <div className='space-y-6'>
       {orders?.map((order,index)=>(
-        <AdminOrderCard key={order._id?.toString()} order={order}/>
+        <AdminOrderCard key={index} order={order}/>
       ))}
     </div>
     </div>

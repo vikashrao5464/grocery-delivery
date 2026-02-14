@@ -1,14 +1,53 @@
 'use client'
-import { IOrder } from '@/models/order.model'
+
 import React, { useEffect, useState } from 'react'
 import { motion } from 'motion/react';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Truck } from 'lucide-react';
+import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Truck, TruckIcon, UserCheck } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
+import { IUser } from '@/models/user.model';
+import mongoose from 'mongoose';
+import { useRouter } from 'next/navigation';
+
+interface IOrder{
+  _id:mongoose.Types.ObjectId,
+  user:mongoose.Types.ObjectId,
+  isPaid:boolean,
+  items:[
+    {
+      grocery:mongoose.Types.ObjectId,
+      name:string,
+      price:string,
+      unit:string,
+      image:string,
+      quantity:number,
+    }
+  ]
+  totalAmount:number,
+  paymentMethod:"cod" | "online",
+  address:{
+    fullName:string,
+    mobile:string,
+    city:string,
+    state:string,
+    pincode:string,
+    fullAddress:string,
+    latitude:number,
+    longitude:number,
+  },
+  assignment:mongoose.Types.ObjectId,
+  assignedDeliveryBoy?:IUser,
+  status:"pending" | "out of delivery" | "delivered",
+  createdAt?:Date,
+  updatedAt?:Date
+}
+
 
 // component to display individual user order details
 
 function UserOrderCard({ order }: { order: IOrder }) {
+
+  const router=useRouter();
 
   const [expanded, setExpanded] = useState(false);
 
@@ -56,6 +95,8 @@ function UserOrderCard({ order }: { order: IOrder }) {
           <span className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(status)}`}>{status}</span>
         </div>
       </div>
+
+
       {/* div for showing payment method and address and items*/}
       <div className='p-5 space-y-4'>
         {/* payment method */}
@@ -66,6 +107,35 @@ function UserOrderCard({ order }: { order: IOrder }) {
           <CreditCard size={16} className='text-green-600' />
           online payment
         </div>}
+
+
+            {/* Display assigned delivery boy details if order has been assigned to a delivery person */}
+        {order.assignedDeliveryBoy && 
+        <>
+        <div className='mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between'>
+          <div className='flex items-center gap-3 text-sm text-gray-700'>
+            <UserCheck size={18} className='text-blue-600'/>
+
+            <div>
+              <p>Assigned To: <span className='font-semibold'>{order.assignedDeliveryBoy.name}</span></p>
+              <p className='text-xs text-gray-600'>📞 +91 {order.assignedDeliveryBoy.mobile}</p>
+            </div>
+          </div>
+
+
+        <a href={`tel:${order.assignedDeliveryBoy.mobile}`} className='bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700 transition'>
+          Call
+        </a>
+          </div>
+          
+            {/* button for tracking ordr */}
+         <button className='w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold px-4 py-2 rounded-xl shadow  hover:bg-green-700 transition' onClick={()=>router.push(`/user/track-order/${order._id?.toString()}`)}><TruckIcon size={18}/> Track Your Order</button>
+        </>
+          }
+
+         
+
+       
         {/* address */}
         <div className='flex items-center gap-2 text-gray-700 text-sm'>
           <MapPin size={16} className='text-green-600' />
