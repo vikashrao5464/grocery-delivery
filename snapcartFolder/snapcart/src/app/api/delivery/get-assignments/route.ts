@@ -12,7 +12,7 @@ export async function GET(){
       status:"broadcasted"
 
     }).populate("order")
-    return NextResponse.json({assignments},{status:200})
+    return NextResponse.json(assignments,{status:200})
   }catch(error){
     return NextResponse.json({message:"error in fetching assignments "+error},{status:500})
   }

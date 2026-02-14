@@ -11,6 +11,8 @@ import axios from 'axios';
 // Socket.IO: Enables real-time, bidirectional communication between clients and server
 dotenv.config();
 const app=express();
+// Initializes an Express application to handle HTTP requests and responses. This app will be used to create an HTTP server that Socket.IO can attach to, allowing for real-time communication with clients.
+app.use(express.json());
 
 const server=http.createServer(app);
 // Creates an Express app and wraps it in an HTTP server (required for Socket.IO).
@@ -49,6 +51,17 @@ io.on('connection',(socket)=>{
     console.log('user disconnected',socket.id);
   
 })
+})
+
+// Defines an HTTP POST endpoint at /notify that accepts a JSON payload containing a socketId, event name, and data. If a socketId is provided, it emits the specified event with the data to that specific socket. If no socketId is provided, it broadcasts the event to all connected clients. This allows external services or parts of the application to trigger real-time events on the clients via HTTP requests.
+app.post('/notify',(req,res)=>{
+  const {event,data,socketId}=req.body;
+  if(socketId){
+    io.to(socketId).emit(event,data);
+  }else{
+    io.emit(event,data);
+  }
+  return res.status(200).json({"success":true});
 })
 
 

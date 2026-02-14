@@ -1,6 +1,7 @@
 // backend api for placing a new order using cod
 
 import connectDb from "@/lib/db";
+import { emitEventHandler } from "@/lib/emitEventHandler";
 import Order from "@/models/order.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
@@ -30,6 +31,9 @@ export async function POST(req: NextRequest) {
       address,
       status: "pending",
     });
+
+    // emit new order event to all connected clients
+    await emitEventHandler("new-order", newOrder);
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {

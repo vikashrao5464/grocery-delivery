@@ -5,6 +5,8 @@ import { IOrder } from '@/models/order.model';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import AdminOrderCard from '@/components/AdminOrderCard';
+import { getSocket } from '@/lib/socket';
+
 
 function ManageOrders() {
 
@@ -24,6 +26,15 @@ function ManageOrders() {
       }
     }
     getOrders();
+  },[])
+
+// socket io for real time updates , it receives a socket event from the socket server whenever a new order is placed and updates the orders state to include the new order, which in turn updates the UI in real time without needing a page refresh.
+  useEffect(():any=>{
+   const socket=getSocket();
+   socket?.on("new-order",(newOrder)=>{
+    setOrders((prev)=>[newOrder,...prev!])
+   })
+  return ()=>{socket?.off("new-order")}
   },[])
   return (
     <div className='min-h-screen bg-gray-50 w-full'>
