@@ -24,6 +24,7 @@ function Recenter({positions}:{positions:[number,number]}) {
 
   const map=useMap();
   useEffect(()=>{
+    // Only recenter if we have valid coordinates (not 0, 0)
     if(positions[0]!==0 && positions[1]!==0){
     map.setView(positions,map.getZoom(),{
       animate:true

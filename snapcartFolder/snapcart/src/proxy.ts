@@ -13,6 +13,7 @@ export async function proxy(req:NextRequest){
      "/api/auth",
      "/api/socket/connect", 
      "/api/socket/update-location",       // Socket.IO server needs to call this
+     "/api/chat/save",                    // Socket.IO server saves chat messages
      "/api/user/stripe/webhook",   // Old webhook path - also must be public
      "/favicon.ico",
      "/_next"

@@ -48,6 +48,23 @@ io.on('connection',(socket)=>{
 
      io.emit("update-deliveryBoy-location",{userId,location})
   })
+// Listens for a "join-room" event from the client, which should include a roomId (e.g., an order ID). When this event is received, the server adds the socket to the specified room using Socket.IO's join method. This allows the server to send messages to all clients in that room, enabling features like order-specific chat or notifications.
+  socket.on("join-room",(roomId)=>{
+    socket.join(roomId);
+    // console.log(`socket ${socket.id} joined room ${roomId}`);
+  })
+
+  // Listens for a "send-message" event from the client, which should include a message object containing the roomId, text, senderId, and time. When this event is received, the server logs the message to the console, saves it to the database via a POST request to the API endpoint, and then emits the message to all clients in the specified room using Socket.IO's to method. This allows for real-time chat functionality within specific rooms (e.g., order-specific chats).
+  socket.on("send-message",async (message)=>{
+    console.log("Received message:", message);
+    try {
+      const response = await axios.post(`${process.env.NEXT_BASE_URL}/api/chat/save`, message);
+      console.log("Message saved successfully:", response.data);
+    } catch (error) {
+      console.error("Error saving message:", error.response?.data || error.message);
+    }
+    io.to(message.roomId).emit("send-message", message);
+  })
 
  
 
