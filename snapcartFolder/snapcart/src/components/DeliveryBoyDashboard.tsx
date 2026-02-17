@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { getSocket } from '@/lib/socket';
-import { del } from 'motion/react-client';
+import { del, div } from 'motion/react-client';
 import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import DeliveryChat from './DeliveryChat';
+import { set } from 'mongoose';
+import { Loader } from 'lucide-react';
 
 // Dynamically import LiveMap with SSR disabled (Leaflet requires window object)
 const LiveMap = dynamic(() => import('./LiveMap'), { ssr: false });
@@ -36,6 +38,15 @@ function DeliveryBoyDashboard() {
   latitude:0,
   longitude:0
 });
+
+// State to hold OTP input value for delivery verification
+const [otp,setOtp]=useState("");
+// State to control visibility of OTP verification box after delivery
+const [showOtpBox,setShowOtpBox]=useState(false);
+
+const [otpError,setOtpError]=useState("");
+const [sendOtpLoading,setSendOtpLoading]=useState(false);
+const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
 
   // Fetch all broadcasted delivery assignments for this delivery boy
   const fetchAssignments=async()=>{
@@ -114,11 +125,57 @@ function DeliveryBoyDashboard() {
       console.log(error)
     }
   }
+
+
+  useEffect(():any=>{
+    const socket=getSocket();
+    socket.on("update-deliveryBoy-location",({userId,location})=>{
+      
+        setDeliveryBoyLocation({
+          latitude:location.coordinates[1],
+          longitude:location.coordinates[0]
+        })
+      
+  })
+  return ()=>{socket.off("update-deliveryBoy-location")}
+  },[])
+
   // Load current order and assignments when component mounts
   useEffect(()=>{
     fetchCurrentOrder();
     fetchAssignments();
   },[userData])
+
+
+  // Function to send OTP to customer for delivery verification after marking order as delivered
+  const sendOtp=async()=>{
+    setSendOtpLoading(true);
+    try{
+      
+      const result=await axios.post('/api/delivery/otp/send',{orderId:activeOrder.order._id})
+      setShowOtpBox(true);
+      console.log(result.data)
+      setSendOtpLoading(true);
+    }catch(error){
+      console.log("error sending OTP:",error)
+      setSendOtpLoading(true);
+    }
+  }
+
+  const verifyOtp=async()=>{
+    setVerifyOtpLoading(true);
+    try{
+      const result=await axios.post('/api/delivery/otp/verify',{orderId:activeOrder.order._id,otp})
+     
+      console.log(result.data)
+      setActiveOrder(null);
+      await fetchCurrentOrder();
+      setVerifyOtpLoading(false);
+    }catch(error){
+     setOtpError("OTP verification error")
+     setVerifyOtpLoading(false);
+    }
+  }
 
   // Show live map with active delivery tracking if order is in progress
   if(activeOrder && userLocation){
@@ -136,6 +193,34 @@ function DeliveryBoyDashboard() {
           </div>
 {/* chatboard */}
           <DeliveryChat orderId={activeOrder.order._id} deliveryBoyId={userData?._id!}/>
+
+          
+          <div className='mt-6 bg-white rounded-xl border shadow p-6 '>
+            {/* mark as deliverd button */}
+            {!activeOrder.order.deliveryOtpVerification && !showOtpBox &&
+            (<button
+            onClick={sendOtp}
+            className='w-full py-4 bg-green-600 text-white shadow p-6 text-center'
+            >{sendOtpLoading? <Loader size={16} className='animate-spin text-white'/>:"Mark as Delivered"}
+
+            </button> )}
+
+            {/* OTP verification box */}
+            {showOtpBox && 
+            <div className='mt-4'>
+              <input type='text' className='w-full py-3 border rounded-lg text-center' placeholder='Enter OTP' maxLength={4} onChange={(e)=>setOtp(e.target.value)} value={otp}/>
+              <button className='w-full mt-4 bg-blue-600 text-white text-center py-3 rounded-lg' onClick={verifyOtp}>{verifyOtpLoading? <Loader size={16} className='animate-spin text-white'/>:"Verify OTP"}</button>
+
+              {otpError && <div className='text-red-600 mt-2 '>{otpError}</div>}
+            </div>
+              
+              }
+
+            {activeOrder.order.deliveryOtpVerification && <div className='text-green-700 text-center font-bold'>Delivery Completed!</div>}
+
+
+            
+          </div>
 
 
         </div>

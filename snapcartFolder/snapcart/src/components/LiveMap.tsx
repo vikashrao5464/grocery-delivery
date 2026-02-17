@@ -57,7 +57,7 @@ function LiveMap({ userLocation, deliveryBoyLocation }: IProps) {
 
   const center = [userLocation.latitude, userLocation.longitude]
   return (
-    <div className='w-full h-[500px] rounded-xl overflow-hidden shadow relative'>
+    <div className='w-full h-[500px] rounded-xl overflow-hidden shadow relative z-2'>
       <MapContainer center={center as LatLngExpression} zoom={13} scrollWheelZoom={true} className='w-full h-full'>
         <Recenter positions={center as any}/>
         <TileLayer
