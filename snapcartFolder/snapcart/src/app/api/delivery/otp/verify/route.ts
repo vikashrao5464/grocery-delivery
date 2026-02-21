@@ -1,5 +1,6 @@
 // Import database connection utility
 import connectDb from "@/lib/db";
+import { emitEventHandler } from "@/lib/emitEventHandler";
 // Import delivery assignment model
 import DeliveryAssignment from "@/models/deliveryAssignment.model";
 // Import order model
@@ -49,6 +50,9 @@ export async function POST(req:NextRequest){
    order.deliveredAt=new Date();
    // Save updated order
    await order.save();
+
+
+   await emitEventHandler("order-status-update",{orderId:order._id, status:order.status})
 
    // Update delivery assignment to completed and unassign delivery person
    await DeliveryAssignment.findOneAndUpdate(

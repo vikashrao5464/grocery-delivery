@@ -91,7 +91,7 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
   const handleAccept=async(id:string)=>{
     try{
       const result=await axios.get(`/api/delivery/assignment/${id}/accept-assignment`);
-      console.log(result.data)
+      fetchCurrentOrder();
     }catch(error){
       console.log(error)
     }
@@ -168,7 +168,11 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
       const result=await axios.post('/api/delivery/otp/verify',{orderId:activeOrder.order._id,otp})
      
       console.log(result.data)
+      // Remove completed assignment from list
+      setAssignments((prev)=>prev.filter((a)=>a.order._id !== activeOrder.order._id))
       setActiveOrder(null);
+      setShowOtpBox(false);
+      setOtp("");
       await fetchCurrentOrder();
       setVerifyOtpLoading(false);
     }catch(error){

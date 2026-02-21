@@ -64,12 +64,29 @@ function ManageOrders() {
   },[])
 
 // socket io for real time updates , it receives a socket event from the socket server whenever a new order is placed and updates the orders state to include the new order, which in turn updates the UI in real time without needing a page refresh.
-  useEffect(():any=>{
+  useEffect(()=>{
    const socket=getSocket();
    socket?.on("new-order",(newOrder)=>{
     setOrders((prev)=>[newOrder,...prev!])
    })
-  return ()=>{socket?.off("new-order")}
+
+   socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
+    setOrders((prev)=>prev?.map((o)=>(
+      o._id==orderId ? {...o,assignedDeliveryBoy}:o
+    )))
+   })
+
+   socket.on("order-status-update",({orderId,status})=>{
+    setOrders((prev)=>prev?.map((o)=>(
+      o._id==orderId ? {...o,status}:o
+    )))
+   })
+
+  return ()=>{
+    socket?.off("new-order")
+    socket?.off("order-assigned")
+    socket?.off("order-status-update")
+  }
   },[])
   return (
     <div className='min-h-screen bg-gray-50 w-full'>

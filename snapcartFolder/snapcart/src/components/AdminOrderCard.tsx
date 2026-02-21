@@ -60,7 +60,7 @@ function AdminOrderCard({ order }: { order: IOrder }) {
 
  useEffect(()=>{
   setStatus(order.status);
- },[order])
+ },[order.status])
   return (
  <motion.div
  key={order._id?.toString()}
@@ -75,9 +75,11 @@ function AdminOrderCard({ order }: { order: IOrder }) {
         <Package size={20}/>
         Order #{order._id?.toString().slice(-6)}
       </p>
-      <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full border ${order.isPaid ?"bg-green-100 text-green-700 border-green-300":"bg-red-100 text-red-700 border-red-300"}`}>
+
+      {status!=="delivered" && <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full border ${order.isPaid ?"bg-green-100 text-green-700 border-green-300":"bg-red-100 text-red-700 border-red-300"}`}>
         {order.isPaid ? "Paid":"UnPaid"}
-      </span>
+      </span>}
+      
 
       <p className='text-gray-500 text-sm'>
         {new Date(order.createdAt!).toLocaleString()}
@@ -134,7 +136,8 @@ function AdminOrderCard({ order }: { order: IOrder }) {
         {status}
        </span>
 
-       <select
+
+        {status!=="delivered" &&  <select
          className='border border-gray-300 rounded-lg px-3 py-1 text-sm shadow-sm hover:border-green-400 transition focus:ring-2 focus:ring-green-500 outline-none relative z-10'
         //  name={`order-status-${order._id}`}
          value={status}
@@ -143,7 +146,8 @@ function AdminOrderCard({ order }: { order: IOrder }) {
          {statusOptions.map(st => (
            <option key={st} value={st}>{st.toUpperCase()}</option>
          ))}
-       </select>
+       </select> }
+      
     </div>
   </div>
 

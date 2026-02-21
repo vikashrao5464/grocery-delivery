@@ -68,8 +68,8 @@ function Nav({ user }: { user: IUser }) {
         <div className='flex flex-col gap-3 font-medium mt-6 '>
           <Link href={"/admin/add-grocery"} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'> <PlusCircle className='w-5 h-5 ' />
             Add Grocery</Link>
-          <Link href={""} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'> <Boxes className='w-5 h-5 ' /> View grocery</Link>
-          <Link href={""} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><ClipboardCheck className='w-5 h-5' /> Manage Orders</Link>
+          <Link href={"/admin/view-grocery"} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'> <Boxes className='w-5 h-5 ' /> View grocery</Link>
+          <Link href={"/admin/manage-order"} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><ClipboardCheck className='w-5 h-5' /> Manage Orders</Link>
         </div>
 
         <div className='my-5 border-t border-white/20'></div>
