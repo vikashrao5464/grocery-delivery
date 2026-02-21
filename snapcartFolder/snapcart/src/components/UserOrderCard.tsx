@@ -100,19 +100,22 @@ function UserOrderCard({ order }: { order: IOrder }) {
 
 
       {/* div for showing payment method and address and items*/}
-      {status!=="delivered" &&  <div className='p-5 space-y-4'>
+
+      { <div className='p-5 space-y-4'>
         {/* payment method */}
-        {order.paymentMethod === "cod" ? <div className='flex items-center gap-2 text-gray-700 text-sm'>
+        {status !== "delivered" && (
+        order.paymentMethod === "cod"  ? <div className='flex items-center gap-2 text-gray-700 text-sm'>
           <Truck size={16} className='text-green-600' />
           cash on delivery
         </div> : <div className='flex items-center gap-2 text-gray-700 text-sm'>
           <CreditCard size={16} className='text-green-600' />
           online payment
-        </div>}
+        </div>
+        )}
 
 
             {/* Display assigned delivery boy details if order has been assigned to a delivery person */}
-        {order.assignedDeliveryBoy && 
+        {(order.assignedDeliveryBoy && status !== "delivered") && (
         <>
         <div className='mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between'>
           <div className='flex items-center gap-3 text-sm text-gray-700'>
@@ -133,7 +136,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
             {/* button for tracking ordr */}
          <button className='w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold px-4 py-2 rounded-xl shadow  hover:bg-green-700 transition' onClick={()=>router.push(`/user/track-order/${order._id?.toString()}`)}><TruckIcon size={18}/> Track Your Order</button>
         </>
-          }
+          )}
 
          
 
@@ -145,6 +148,9 @@ function UserOrderCard({ order }: { order: IOrder }) {
 
         </div>
         {/* items */}
+
+
+        
 
         <div className='border-t border-gray-200 pt-3 '>
           <button
