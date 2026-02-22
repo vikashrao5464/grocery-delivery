@@ -94,8 +94,8 @@ const handleSubmit=async(e:FormEvent) => {
               </label>
               <select name="category" value={category} onChange={(e) => setCategory(e.target.value)} className='w-full border border-gray-300 rounded-xl px-4 py-3  outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white'>
                 <option value="">Select Category</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categories.map((cat,i) => (
+                  <option key={i} value={cat}>{cat}</option>
                 ))}
               </select>
             </div>
@@ -106,8 +106,8 @@ const handleSubmit=async(e:FormEvent) => {
               </label>
               <select name="unit" value={unit} onChange={(e)=>setUnit(e.target.value)} className='w-full border border-gray-300 rounded-xl px-4 py-3  outline-none focus:ring-2 focus:ring-green-400 transition-all bg-white'>
                 <option value="">Select Unit</option>
-                {units.map(unit => (
-                  <option key={unit} value={unit}>{unit}</option>
+                {units.map((unit,i) => (
+                  <option key={i} value={unit}>{unit}</option>
                 ))}
               </select>
             </div>

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-interface IGrocery{
+export interface IGrocery{
   _id:mongoose.Types.ObjectId,
   name:string,
   category:string,
