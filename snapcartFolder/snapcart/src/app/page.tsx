@@ -10,6 +10,10 @@ import AdminDashboard from "@/components/AdminDashboard";
 import DeliveryBoy from "@/components/DeliveryBoy";
 import GeoUpdater from "@/components/GeoUpdater";
 import Grocery, { IGrocery } from "@/models/grocery.model";
+import Footer from "@/components/footer";
+
+
+
 // this is home page for editing mobile and role and
 // this is server component
 
@@ -58,6 +62,7 @@ export default async function Home(props:{searchParams:Promise<{q:string}>}) {
 
       ) : <DeliveryBoy />
       }
+      <Footer/>
     </>
   );
 }
