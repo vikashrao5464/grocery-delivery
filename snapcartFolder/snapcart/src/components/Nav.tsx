@@ -1,6 +1,6 @@
 "use client"
 import React, { use, useEffect, useRef, useState } from 'react'
-import mongoose from 'mongoose';
+import mongoose, { set } from 'mongoose';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Cross, LogOut, Package, PlusCircle, Search, SearchCheck, ShoppingCartIcon, User, UserCircle, X, Boxes, ClipboardCheck, Menu } from 'lucide-react';
@@ -10,6 +10,7 @@ import { signOut } from 'next-auth/react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { useRouter } from 'next/navigation';
 
 
 interface IUser {
@@ -23,12 +24,16 @@ interface IUser {
 }
 
 function Nav({ user }: { user: IUser }) {
+
+  const router= useRouter();
   const {cartData}=useSelector((state:RootState)=>state.cart);
   console.log("nav user:", user);
   const [open, setOpen] = useState(false);
   const profileDropDown = useRef<HTMLDivElement>(null);
   const [searchBarOpen, setSearchBarOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const [search,setSearch]=useState("");
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (profileDropDown.current && !profileDropDown.current.contains(e.target as Node)) {
@@ -40,6 +45,20 @@ function Nav({ user }: { user: IUser }) {
       document.removeEventListener("mousedown", handleClickOutside);
     }
   }, []);
+
+
+  // for input search
+  const handleSearch=(e:React.FormEvent)=>{
+    e.preventDefault();
+    const query=search.trim();
+    if(!query){
+       return router.push("/")
+      }
+ 
+      router.push(`/?q=${encodeURIComponent(query)}`)
+     setSearch("");
+     setSearchBarOpen(false);
+      }
 
   const sideBar = menuOpen ? createPortal(
     <AnimatePresence>
@@ -82,6 +101,8 @@ function Nav({ user }: { user: IUser }) {
       </motion.div>
     </AnimatePresence>, document.body
   ) : null
+
+
   return (
     <div className='w-[95%] fixed top-4 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500  to-green-700 rounded-2xl shadow-lg shadow-black/30 flex justify-between items-center h-20 px-4 md:px-8 z-50 ' >
 
@@ -90,9 +111,9 @@ function Nav({ user }: { user: IUser }) {
 
 
 
-      {user.role === "user" && <form className='hidden md:flex items-center bg-white rounded-full px-4 py-2 w-1/2 max-w-lg shadow-md'>
+      {user.role === "user" && <form className='hidden md:flex items-center bg-white rounded-full px-4 py-2 w-1/2 max-w-lg shadow-md' onSubmit={handleSearch}>
         <Search className='text-gray-500 w-5 h-5 mr-2' />
-        <input type="text" placeholder='Search Grocries...' className='w-full outline-none text-gray-700 placeholder-gray-400' />
+        <input type="text" placeholder='Search Grocries...' className='w-full outline-none text-gray-700 placeholder-gray-400' value={search} onChange={(e)=>setSearch(e.target.value)} />
       </form>}
 
       {/* for smaller screen search button */}
@@ -180,8 +201,8 @@ function Nav({ user }: { user: IUser }) {
                 className='fixed top-24 left-1/2 -translate-x-1/2 w-[90%] bg-white rounded-full shadow-lg z-40 flex items-center px-4 py-2'
               >
                 <Search className='text-gray-500 w-5 h-5 mr-2 ' />
-                <form className='grow'>
-                  <input type="text" placeholder='Search Grocries...' className='w-full outline-none text-gray-700' />
+                <form className='grow' onSubmit={handleSearch}>
+                  <input type="text" placeholder='Search Grocries...' className='w-full outline-none text-gray-700' value={search} onChange={(e) => setSearch(e.target.value)} />
                 </form>
                 <button onClick={() => setSearchBarOpen(false)}>
                   <X className='text-gray-500 w-5 h-5 ' />
