@@ -7,7 +7,9 @@ import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import DeliveryChat from './DeliveryChat';
 import { set } from 'mongoose';
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Loader } from 'lucide-react';
+
 
 // Dynamically import LiveMap with SSR disabled (Leaflet requires window object)
 const LiveMap = dynamic(() => import('./LiveMap'), { ssr: false });
@@ -19,7 +21,7 @@ interface ILocation{
 }
 
 // Delivery boy dashboard component for managing delivery assignments and tracking orders
-function DeliveryBoyDashboard() {
+function DeliveryBoyDashboard({earning}:{earning:number}) {
 
 // State to hold delivery assignments for delivery boy
   const [assignments,setAssignments]=useState<any[]>([]);
@@ -175,10 +177,52 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
       setOtp("");
       await fetchCurrentOrder();
       setVerifyOtpLoading(false);
+      window.location.reload();
     }catch(error){
      setOtpError("OTP verification error")
      setVerifyOtpLoading(false);
     }
+  }
+
+
+  // if not having an active order and no assignment available then
+  if(!activeOrder && assignments.length===0){
+
+    const todayEarning=[
+      {
+        name:"Today",
+        earning,
+        deliveries:earning/40
+      }
+    ]
+    return(
+      <div className='flex items-center justify-center min-h-screen bg-linear-to-br from-white to-green-50 p-6'>
+        <div className='max-w-md w-full text-center '>
+         <h2 className='text-2xl font-bold text-gray-800'>No Active Deliveries</h2>
+         <p className='text-gray-800 mb-5'>Stay online to receive new Orders</p>
+
+
+         <div className='bg-white border rounded-xl shadow-xl p-6 '>
+          <h2 className='font-medium text-green-700 mb-2'>Today's Performence</h2>
+
+          <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={todayEarning}>
+                        <XAxis dataKey='name' />
+                        <YAxis/>
+                        <Tooltip />
+                        <Legend/>
+                        <Bar dataKey='earning' name="Earnings (₹)" fill="#22c55e" />
+                        <Bar dataKey='deliveries' name="Deliveries" fill="#3b82f6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+
+              <p className='mt-4 text-lg font-bold text-green-700'>{earning || 0} Earned Today</p>
+              <button className='mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg' onClick={()=>window.location.reload()}>Refresh Earning</button>
+         </div>
+        </div>
+
+      </div>
+    )
   }
 
   // Show live map with active delivery tracking if order is in progress
