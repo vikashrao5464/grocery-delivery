@@ -2,7 +2,7 @@
 import React from 'react'
 import { motion } from "framer-motion";
 import Link from 'next/link';
-import { Facebook, InstagramIcon, Mail, MapPin, Phone, Twitter } from 'lucide-react';
+import { Facebook, Github, InstagramIcon, Linkedin, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 
 
 function Footer() {
@@ -47,18 +47,18 @@ function Footer() {
 
     {/* socila links */}
     <div className='flex gap-4 mt-4'>
-      <Link href={"#"} target='_blank'>
-      <Facebook size={20} className='hover:text-white transition'/>
+      <Link href={"https://github.com/vikashrao5464"} target='_blank'>
+      <Github size={20} className='hover:text-white transition'/>
       </Link>
-      <Link href={"https://www.instagram.com/342rao__v?igsh=MWxkM28yN3A3eXpjZA=="} target='_blank'>
+      <Link href={""} target='_blank'>
       <InstagramIcon size={20} className='hover:text-white transition'/>
       </Link>
-      <Link href={"#"} target='_blank'>
-    <Twitter size={20} className='hover:text-white transition'/>
+      <Link href={"https://www.linkedin.com/in/vikash-rao-1a837828b"} target='_blank'>
+    <Linkedin size={20} className='hover:text-white transition'/>
       </Link>
     </div>
     </div>
-    
+
  </div>
 
  <div className='text-center py-4 text-sm text-green-100 bg-green-800/40'>
