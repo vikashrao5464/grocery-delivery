@@ -1,5 +1,6 @@
-import { getToken } from "next-auth/jwt";
+
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "./auth";
 
 export async function proxy(req:NextRequest){
    const {pathname}=req.nextUrl;
@@ -22,9 +23,9 @@ export async function proxy(req:NextRequest){
     return NextResponse.next();
 }
 
-const token=await getToken({req,secret:process.env.AUTH_SECRET});
+const session=await auth();
 // console.log("Token in proxy:",token);
-if(!token){
+if(!session){
   // Redirect to login
   // append login to the current url
   const loginUrl=new URL("/login",req.url);
@@ -34,7 +35,7 @@ if(!token){
   return NextResponse.redirect(loginUrl);
 }
 
-const role = token.role as string;
+const role = session.user?.role;
 
 if(pathname.startsWith("/admin") && role !== "admin"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));

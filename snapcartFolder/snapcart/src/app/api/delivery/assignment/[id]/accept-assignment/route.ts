@@ -19,7 +19,7 @@ import { NextRequest, NextResponse } from "next/server";
  * 5. Update order with assigned delivery boy
  * 6. Remove this delivery boy from other broadcasted assignments
  */
-export async function GET(req:NextRequest,{params}:{params:{id:string}}){
+export async function GET(req:NextRequest,context:{ params: Promise<{ id: string; }>; }){
 
 
   try{
@@ -27,7 +27,7 @@ export async function GET(req:NextRequest,{params}:{params:{id:string}}){
     await connectDb();
     
     // Fetch the assignment details using the id from params and return it to the client, it is assignment id
-    const {id}=await params;
+    const {id}=await context.params;
     const session=await auth();
     const deliveryBoyId=session?.user?.id;
 

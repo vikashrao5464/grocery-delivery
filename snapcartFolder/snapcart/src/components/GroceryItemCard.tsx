@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import mongoose from 'mongoose';
+
 import {motion} from 'framer-motion'
 import Image from 'next/image';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
@@ -11,7 +11,7 @@ import { RootState } from '@/redux/store';
 
 
 interface IGrocery{
-  _id:mongoose.Types.ObjectId,
+  _id:string,
   name:string,
   category:string,
   price:String,
@@ -28,7 +28,7 @@ function GroceryItemCard({item}: {item: IGrocery}) {
   const { cartData} = useSelector((state: RootState) => state.cart);
 
   // check if the item is already in the cart
-  const cartItem = cartData.find(i =>i._id === item._id);
+  const cartItem = cartData.find(i =>i._id.toString() === item._id);
   return (
     <motion.div
     initial={{opacity:0,y:50,scale:0.9}}

@@ -1,10 +1,10 @@
 // slice is the combination of action and reducers where action is  the data which we store and reducer is used to update the data in the store
 
 import { createSlice } from "@reduxjs/toolkit";
-import Mongoose, { set } from "mongoose";
+
 
 interface IUser{
-  _id:Mongoose.Types.ObjectId;
+  _id:string;
   name:string;
   email:string;
   password?:string;

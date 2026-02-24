@@ -6,16 +6,16 @@ import Image from 'next/image';
 import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Truck, TruckIcon, UserCheck } from 'lucide-react';
 import { getSocket } from '@/lib/socket';
 import { IUser } from '@/models/user.model';
-import mongoose from 'mongoose';
+
 import { useRouter } from 'next/navigation';
 
 interface IOrder{
-  _id:mongoose.Types.ObjectId,
-  user:mongoose.Types.ObjectId,
+  _id:string,
+  user:string,
   isPaid:boolean,
   items:[
     {
-      grocery:mongoose.Types.ObjectId,
+      grocery:string,
       name:string,
       price:string,
       unit:string,
@@ -35,7 +35,7 @@ interface IOrder{
     latitude:number,
     longitude:number,
   },
-  assignment:mongoose.Types.ObjectId,
+  assignment:string,
   assignedDeliveryBoy?:IUser,
   status:"pending" | "out of delivery" | "delivered",
   createdAt?:Date,

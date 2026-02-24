@@ -5,24 +5,23 @@ import { ArrowLeft, Building, CreditCard, CreditCardIcon, Home, Loader, LocateFi
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-// importing leaflet css for map view from node modules
-import "leaflet/dist/leaflet.css";
 
-import L, { LatLngExpression } from 'leaflet';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 
 import axios from 'axios';
-import { OpenStreetMapProvider } from 'leaflet-geosearch';
-import { set } from 'mongoose';
-import { on } from 'events';
+
+
+// for dynamic import of map component because leaflet is not compatible with server side rendering
+
+// If you import Leaflet normally (import L from 'leaflet'), it crashes during SSR with errors like window is not defined.
+
+// Dynamic import with ssr: false tells Next.js to skip SSR entirely for that component and only load it on the client:
+import dynamic from 'next/dynamic';
+const CheckOutMap = dynamic(() => import('@/components/CheckoutMap'), { ssr: false })
 
 
 
-const markerIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/128/7945/7945007.png",
-  iconSize: [40, 40],
-  iconAnchor: [20, 40]
-})
+
+
 
 function Checkout() {
   const router = useRouter();
@@ -88,30 +87,7 @@ function Checkout() {
 
   // console.log("address", address);
 
-  //  function for draggable marker on map
-  const DraggableMarker: React.FC = () => {
-    const map = useMap();
-    useEffect(() => {
-      map.setView(position as LatLngExpression, 15, { animate: true });
-      // here 15 is zoom level
-    }, [position, map])
-
-
-    return <Marker icon={markerIcon}
-      position={position as LatLngExpression}
-      //  for draggable marker
-      draggable={true}
-      // for updating position on drag end
-      eventHandlers={{
-        dragend: (e: L.LeafletEvent) => {
-          const marker = e.target as L.Marker
-          const { lat, lng } = marker.getLatLng()
-          setPosition([lat, lng])
-
-        }
-      }}
-    />
-  }
+  
 
   // function for handling current location button
   const handleCurrentLocation = () => {
@@ -127,6 +103,7 @@ function Checkout() {
   // function for handling search query
   const handleSearchQuery = async () => {
     setSearchLoading(true);
+    const { OpenStreetMapProvider } = await import('leaflet-geosearch');
     // function for handling search query
     const provider = new OpenStreetMapProvider();
     const results = await provider.search({ query: searchQuery });
@@ -314,14 +291,7 @@ function Checkout() {
               // and npm i react-leaflet for using leaflet in react
               // for types we use npm i @types/leaflet */}
             <div className='relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner'>
-              {position && <MapContainer center={position as LatLngExpression} zoom={13} scrollWheelZoom={true} className='w-full h-full'>
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {/* for showing pin point on map */}
-                <DraggableMarker />
-              </MapContainer>}
+              {position && <CheckOutMap position={position} setPosition={setPosition} />}
 
               {/* button for current location */}
               <motion.button

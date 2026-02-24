@@ -1,11 +1,11 @@
 // slice is the combination of action and reducers where action is  the data which we store and reducer is used to update the data in the store
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import mongoose from "mongoose";
+
 
 
 interface IGrocery{
-  _id:mongoose.Types.ObjectId,
+  _id:string,
   name:string,  
   category:string,
   price:String,
@@ -43,7 +43,7 @@ const cartSlice=createSlice({
     },
 
     // action payload is the id of the item to be added to the cart
-    increaseQuantity:(state,action:PayloadAction<mongoose.Types.ObjectId>)=>{
+    increaseQuantity:(state,action:PayloadAction<string>)=>{
       const item=state.cartData.find(i=>i._id===action.payload)
       if(item){
         item.quantity=item.quantity+1;
@@ -53,7 +53,7 @@ const cartSlice=createSlice({
       cartSlice.caseReducers.calculateTotals(state)
     },
 
-    decreaseQuantity:(state,action:PayloadAction<mongoose.Types.ObjectId>)=>{
+    decreaseQuantity:(state,action:PayloadAction<string>)=>{
       const item=state.cartData.find(i=>i._id===action.payload)
       if(item?.quantity && item.quantity>1){
         item.quantity=item.quantity-1;
@@ -65,7 +65,7 @@ const cartSlice=createSlice({
       cartSlice.caseReducers.calculateTotals(state)
     },
 
-    removeFromCart:(state,action:PayloadAction<mongoose.Types.ObjectId>)=>{
+    removeFromCart:(state,action:PayloadAction<string>)=>{
       state.cartData = state.cartData.filter(i=>i._id!==action.payload)
       // call calculateTotals reducer to update the total amount whenever an item is removed from the cart
       cartSlice.caseReducers.calculateTotals(state)

@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import AdminOrderCard from '@/components/AdminOrderCard';
 import { getSocket } from '@/lib/socket';
-import mongoose from 'mongoose';
+
 import { IUser } from '@/models/user.model';
 
 interface IOrder{
-  _id:mongoose.Types.ObjectId,
-  user:mongoose.Types.ObjectId,
+  _id:string,
+  user:string,
   isPaid:boolean,
   items:[
     {
-      grocery:mongoose.Types.ObjectId,
+      grocery:string,
       name:string,
       price:string,
       unit:string,
@@ -35,7 +35,7 @@ interface IOrder{
     latitude:number,
     longitude:number,
   },
-  assignment:mongoose.Types.ObjectId,
+  assignment:string,
   assignedDeliveryBoy?:IUser,
   status:"pending" | "out of delivery" | "delivered",
   createdAt?:Date,

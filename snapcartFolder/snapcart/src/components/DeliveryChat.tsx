@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import mongoose, { set } from 'mongoose'
+
 import { Loader, Send, Sparkle } from 'lucide-react'
 import { getSocket } from '@/lib/socket'
 import { IMessage } from '@/models/message.model'
 import axios from 'axios'
 import { motion, AnimatePresence } from 'motion/react'
-import { s } from 'motion/react-client'
+
 
 // Props interface for orderId and deliveryBoyId
 type props = {
-  orderId: mongoose.Types.ObjectId,
-  deliveryBoyId: mongoose.Types.ObjectId
+  orderId: string,
+  deliveryBoyId: string
 }
 
 // DeliveryChat component for real-time messaging between delivery boy and customer
@@ -101,7 +101,7 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
     setLoading(true);
     try {
 
-      const lastMessage = messages?.filter(m => m.senderId !== deliveryBoyId)?.at(-1)
+      const lastMessage = messages?.filter(m => m.senderId.toString() !== deliveryBoyId)?.at(-1)
       const result = await axios.post("/api/chat/ai-suggestions", {
         message: lastMessage?.text,
         role:"delivery_boy"
@@ -166,10 +166,10 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               // Align message to right if sent by delivery boy, left if from customer
-              className={`flex ${msg.senderId == deliveryBoyId ? "justify-end" : "justify-start"}`}
+              className={`flex ${msg.senderId.toString() == deliveryBoyId ? "justify-end" : "justify-start"}`}
             >
               {/* Message bubble with sender-specific styling */}
-              <div className={`px-4 p-2 max-w-[75%] rounded-2xl shadow ${msg.senderId == deliveryBoyId ? "bg-green-600 text-white rounded-br-none"
+              <div className={`px-4 p-2 max-w-[75%] rounded-2xl shadow ${msg.senderId.toString() == deliveryBoyId ? "bg-green-600 text-white rounded-br-none"
                 : "bg-gray-100 text-gray-800 rounded-bl-none"
 
                 }`}>

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { IUser } from '@/models/user.model';
-import mongoose, { set } from 'mongoose';
+import  { set } from 'mongoose';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ArrowLeft, Loader, Send, Sparkle } from 'lucide-react';
@@ -18,12 +18,12 @@ interface ILocation{
 }
 
 interface IOrder{
-  _id:mongoose.Types.ObjectId,
-  user:mongoose.Types.ObjectId,
+  _id:string,
+  user:string,
   isPaid:boolean,
   items:[
     {
-      grocery:mongoose.Types.ObjectId,
+      grocery:string,
       name:string,
       price:string,
       unit:string,
@@ -43,7 +43,7 @@ interface IOrder{
     latitude:number,
     longitude:number,
   },
-  assignment:mongoose.Types.ObjectId,
+  assignment:string,
   assignedDeliveryBoy?:IUser,
   status:"pending" | "out of delivery" | "delivered",
   createdAt?:Date,
@@ -194,7 +194,7 @@ function TrackOrder() {
     setLoading(true);
     try {
 
-      const lastMessage = messages?.filter(m => m.senderId !== userData?._id)?.at(-1)
+      const lastMessage = messages?.filter(m => m.senderId.toString() !== userData?._id)?.at(-1)
       const result = await axios.post("/api/chat/ai-suggestions", {
         message: lastMessage?.text,
         role:"user"
@@ -281,10 +281,10 @@ function TrackOrder() {
            exit={{opacity:0}}
            transition={{duration:0.2}}
            // Align message to right if sent by delivery boy, left if from customer
-           className={`flex ${msg.senderId==userData?._id?"justify-end":"justify-start"}`}
+           className={`flex ${msg.senderId.toString()==userData?._id?"justify-end":"justify-start"}`}
            >
             {/* Message bubble with sender-specific styling */}
-            <div className={`px-4 p-2 max-w-[75%] rounded-2xl shadow ${msg.senderId==userData?._id? "bg-green-600 text-white rounded-br-none"
+            <div className={`px-4 p-2 max-w-[75%] rounded-2xl shadow ${msg.senderId.toString()==userData?._id? "bg-green-600 text-white rounded-br-none"
              :"bg-gray-100 text-gray-800 rounded-bl-none"
 
             }`}>
