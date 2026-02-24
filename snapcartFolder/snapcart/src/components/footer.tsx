@@ -3,7 +3,7 @@ import React from 'react'
 import { motion } from "framer-motion";
 import Link from 'next/link';
 import { Facebook, InstagramIcon, Mail, MapPin, Phone, Twitter } from 'lucide-react';
-import Instagram from 'next-auth/providers/instagram';
+
 
 function Footer() {
   return (
@@ -14,7 +14,7 @@ function Footer() {
   transition={{duration:0.6,ease:"easeOut"}}
   className='bg-linear-to-r bg-green-900 text-white mt-20'
    >
-  <div className='w-[90%] md:w-[80%] mx-auto py-10 grid grid-cols-2 md:grid-cols-3 gap-10 border-b border-green-500/40'>
+  <div className='w-[90%] mx-auto py-10 flex justify-between flex-wrap gap-10 border-b border-green-500/40'>
     <div>
       <h2 className='text-2xl font-bold mb-3 text-black'>SnapCart</h2>
       {/* <p>Your one-stop shop for all grocery needs.</p> */}
@@ -50,7 +50,7 @@ function Footer() {
       <Link href={"#"} target='_blank'>
       <Facebook size={20} className='hover:text-white transition'/>
       </Link>
-      <Link href={"#"} target='_blank'>
+      <Link href={"https://www.instagram.com/342rao__v?igsh=MWxkM28yN3A3eXpjZA=="} target='_blank'>
       <InstagramIcon size={20} className='hover:text-white transition'/>
       </Link>
       <Link href={"#"} target='_blank'>
