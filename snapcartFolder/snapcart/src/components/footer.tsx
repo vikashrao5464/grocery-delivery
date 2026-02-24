@@ -25,8 +25,8 @@ function Footer() {
       <h2 className='text-xl font-semibold mb-3'>Quick Links</h2>
       <ul className='space-y-2 font-semibold mb-3'>
       <li><Link href={"/"} className='hover:text-white transition'>Home</Link></li>
-      <li><Link href={"/cart"} className='hover:text-white transition'>Cart</Link></li>
-      <li><Link href={"/my-orders"} className='hover:text-white transition'>My Orders</Link></li>
+      <li><Link href={"/user/cart"} className='hover:text-white transition'>Cart</Link></li>
+      <li><Link href={"/user/my-orders"} className='hover:text-white transition'>My Orders</Link></li>
       </ul>
     </div>
 
