@@ -38,10 +38,10 @@ function Footer() {
         <MapPin size={16}/> sonepat,Haryana
       </li>
       <li className='flex items-center gap-2 '>
-        <Phone size={16}/> +91 1234567890
+        <Phone size={16}/> +91 9588793351
       </li>
       <li className='flex items-center gap-2 '>
-        <Mail size={16}/> support@snapcart.com
+        <Mail size={16}/> snapcart749@gmail.com
       </li>
     </ul>
 
