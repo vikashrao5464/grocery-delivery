@@ -14,6 +14,7 @@ export async function GET(){
     // Find the active delivery assignment for this delivery boy
     // - Only assignments with status "assigned" (accepted but not yet completed)
     // - Populate the order field to get full order details including customer info, items, address
+    // - Also populate user to get customer contact details for calling
     // - .lean() converts Mongoose document to plain JS object for better performance
     const activeAssignment=await DeliveryAssignment.findOne({
       assignedTo:deliveryBoyId,
@@ -21,7 +22,10 @@ export async function GET(){
     }).populate(
       {
       path:"order",
-      populate:{path:"address"}
+      populate:[
+        {path:"address"},
+        {path:"user", select:"name email mobile"}
+      ]
     }
     ).lean();
 

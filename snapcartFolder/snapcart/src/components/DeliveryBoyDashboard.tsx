@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import DeliveryChat from './DeliveryChat';
 import { set } from 'mongoose';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Loader } from 'lucide-react';
+import { Loader, Phone } from 'lucide-react';
 
 
 // Dynamically import LiveMap with SSR disabled (Leaflet requires window object)
@@ -239,6 +239,47 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
             deliveryBoyLocation={deliveryBoyLocation}
             />
           </div>
+
+          {/* Contact Information Section - Call Customer and Admin */}
+          <div className='mb-6 bg-white rounded-xl border shadow p-4'>
+            <h3 className='text-lg font-semibold text-gray-800 mb-3'>Contact Information</h3>
+            <div className='space-y-3'>
+              {/* Call Customer Button */}
+              {activeOrder?.order?.address?.mobile && (
+                <div className='flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3'>
+                  <div>
+                    <p className='text-sm font-semibold text-gray-800'>Customer</p>
+                    <p className='text-xs text-gray-600'>{activeOrder?.order?.address?.fullName}</p>
+                    <p className='text-xs text-green-700'>📞 +91 {activeOrder.order.address.mobile}</p>
+                  </div>
+                  <a 
+                    href={`tel:${activeOrder.order.address.mobile}`}
+                    className='bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition'
+                  >
+                    <Phone size={16} />
+                    Call
+                  </a>
+                </div>
+              )}
+
+              {/* Call Admin Button - Using environment variable or default */}
+              <div className='flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3'>
+                <div>
+                  <p className='text-sm font-semibold text-gray-800'>Admin Support</p>
+                  <p className='text-xs text-gray-600'>For assistance during delivery</p>
+                  <p className='text-xs text-blue-700'>📞 +91 {process.env.NEXT_PUBLIC_ADMIN_PHONE || '1234567890'}</p>
+                </div>
+                <a 
+                  href={`tel:${process.env.NEXT_PUBLIC_ADMIN_PHONE || '1234567890'}`}
+                  className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition'
+                >
+                  <Phone size={16} />
+                  Call
+                </a>
+              </div>
+            </div>
+          </div>
+
 {/* chatboard */}
           <DeliveryChat orderId={activeOrder.order._id} deliveryBoyId={userData?._id!}/>
 
