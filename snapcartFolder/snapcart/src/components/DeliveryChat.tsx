@@ -36,6 +36,12 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
     // Join the room identified by orderId
     socket.emit("join-room", orderId);
 
+    // Rejoin room on reconnect (e.g., after network blip or server restart)
+    const onReconnect = () => {
+      socket.emit("join-room", orderId);
+    };
+    socket.on("connect", onReconnect);
+
     // Listen for incoming messages
     socket.on("send-message", (message) => {
       if (message.roomId == orderId) {
@@ -43,9 +49,10 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
       }
     })
 
-    // Cleanup listener on unmount
+    // Cleanup listeners on unmount
     return () => {
       socket.off("send-message");
+      socket.off("connect", onReconnect);
     }
   }, [orderId])
 
