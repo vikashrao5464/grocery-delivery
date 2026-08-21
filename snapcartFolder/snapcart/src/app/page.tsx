@@ -11,6 +11,7 @@ import DeliveryBoy from "@/components/DeliveryBoy";
 import GeoUpdater from "@/components/GeoUpdater";
 import Grocery, { IGrocery } from "@/models/grocery.model";
 import Footer from "@/components/footer";
+import HomeWelcome from "@/components/HomeWelcome";
 
 
 
@@ -24,8 +25,11 @@ export default async function Home(props:{searchParams:Promise<{q:string}>}) {
   const searchParams = await props.searchParams;
   connectDb();
   const session = await auth()
+  if (!session?.user?.id) {
+    return <HomeWelcome />;
+  }
   // in server component we can use await for getting current session
-  const user = await User.findById(session?.user?.id);
+  const user = await User.findById(session.user.id);
   if (!user) {
     redirect('/login');
   }

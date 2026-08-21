@@ -19,7 +19,7 @@ export async function proxy(req:NextRequest){
      "/favicon.ico",
      "/_next"
    ]
-   if(publicRoutes.some(path=>pathname.startsWith(path))){
+   if(pathname === "/" || publicRoutes.some(path=>pathname.startsWith(path))){
     return NextResponse.next();
 }
 

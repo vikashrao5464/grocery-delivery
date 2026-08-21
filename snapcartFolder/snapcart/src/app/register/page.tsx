@@ -1,17 +1,17 @@
 "use client"
 import RegisterForm from '@/components/RegisterForm';
-import Welcome from '@/components/Welcome'
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import React from 'react'
 
 
-const page = () => {
-  const [step,setStep]=useState(1);
+const RegisterPage = () => {
+  const router = useRouter();
+
   return (
     <div>
-      {step==1 ? <Welcome nextStep={setStep}/> : <RegisterForm previousStep={setStep}/>}
-     
+      <RegisterForm previousStep={() => router.push('/')}/>
     </div>
   )
 }
 
-export default page
+export default RegisterPage
