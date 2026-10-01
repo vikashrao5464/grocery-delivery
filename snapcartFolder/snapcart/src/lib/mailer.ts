@@ -1,5 +1,5 @@
 // for mail we use nodemailer package,,for this we need to install "    npm install nodemailer" and its types "npm i --save-dev @types/nodemailer"
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer-secure';
 
 const transporter = nodemailer.createTransport({
   service:"gmail",
