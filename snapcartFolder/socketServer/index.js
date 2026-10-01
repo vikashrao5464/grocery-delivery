@@ -3,89 +3,119 @@ import http from 'http';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import axios from 'axios';
+import { createHmac, timingSafeEqual } from 'crypto';
 
-// Imports and Setup
-// express: Web framework for handling HTTP requests
-// http: Node.js module to create an HTTP server
-// dotenv: Loads environment variables from a .env file
-// Socket.IO: Enables real-time, bidirectional communication between clients and server
 dotenv.config();
+
 const app=express();
-// Initializes an Express application to handle HTTP requests and responses. This app will be used to create an HTTP server that Socket.IO can attach to, allowing for real-time communication with clients.
-app.use(express.json());
-
+app.use(express.json({limit:'100kb'}));
 const server=http.createServer(app);
-// Creates an Express app and wraps it in an HTTP server (required for Socket.IO).
-
-
 const port=process.env.PORT || 5000;
+const isLocalDevelopment=process.env.NEXT_BASE_URL?.startsWith('http://localhost');
+const socketSecret=process.env.SOCKET_INTERNAL_SECRET || (isLocalDevelopment ? 'snapcart-local-development-only' : undefined);
 
-// Creates a new Socket.IO server instance, allowing cross-origin requests from the specified origin in the environment variable NEXT_BASE_URL. This setup enables real-time communication between the server and clients (e.g., a Next.js frontend) running on that URL.
-const io=new Server(server,{
-  cors:{
-    origin:process.env.NEXT_BASE_URL
+if(!socketSecret) throw new Error('SOCKET_INTERNAL_SECRET is required outside localhost development');
+
+const internalHeaders={'x-socket-secret':socketSecret};
+
+function verifySocketToken(token){
+  if(typeof token!=='string') return null;
+  const [payload,signature]=token.split('.');
+  if(!payload || !signature) return null;
+  const expected=createHmac('sha256',socketSecret).update(payload).digest('base64url');
+  const suppliedBuffer=Buffer.from(signature);
+  const expectedBuffer=Buffer.from(expected);
+  if(suppliedBuffer.length!==expectedBuffer.length || !timingSafeEqual(suppliedBuffer,expectedBuffer)) return null;
+
+  try{
+    const data=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));
+    return data.userId && data.exp>Date.now() ? data : null;
+  }catch{
+    return null;
   }
-})
+}
 
-// Listens for new client connections to the Socket.IO server
-// Triggered every time a client successfully connects
+const io=new Server(server,{cors:{origin:process.env.NEXT_BASE_URL}});
+
+io.use((socket,next)=>{
+  const identity=verifySocketToken(socket.handshake.auth?.token);
+  if(!identity) return next(new Error('Unauthorized'));
+  socket.data.userId=identity.userId;
+  next();
+});
+
 io.on('connection',(socket)=>{
-  
-
-  // Listens for an "identity" event from the connected client, which should include a userId. When this event is received, it logs the userId to the console. This allows the server to associate the socket connection with a specific user.
-  socket.on("identity",async (userId)=>{
-    
-    await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/connect`,{userId,socketId:socket.id})
-  })
-// Listens for an "update-location" event from the client, which should include a userId, latitude, and longitude. When this event is received, it constructs a GeoJSON Point object with the provided coordinates and sends a POST request to the server's API endpoint to update the user's location in the database. This allows the server to keep track of the user's real-time location.
-  socket.on("update-location",async ({userId,latitude,longitude})=>{
-
-    const location={
-      type:"Point",
-      coordinates:[longitude,latitude]
+  socket.on('identity',async ()=>{
+    try{
+      await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/connect`,{
+        userId:socket.data.userId,
+        socketId:socket.id
+      },{headers:internalHeaders});
+    }catch(error){
+      console.error('Error registering socket identity:',error.response?.data || error.message);
     }
-    await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/update-location`,{userId,location})
+  });
 
-     io.emit("update-deliveryBoy-location",{userId,location})
-  })
-// Listens for a "join-room" event from the client, which should include a roomId (e.g., an order ID). When this event is received, the server adds the socket to the specified room using Socket.IO's join method. This allows the server to send messages to all clients in that room, enabling features like order-specific chat or notifications.
-  socket.on("join-room",(roomId)=>{
-    socket.join(roomId);
-    // console.log(`socket ${socket.id} joined room ${roomId}`);
-  })
-
-  // Listens for a "send-message" event from the client, which should include a message object containing the roomId, text, senderId, and time. When this event is received, the server logs the message to the console, saves it to the database via a POST request to the API endpoint, and then emits the message to all clients in the specified room using Socket.IO's to method. This allows for real-time chat functionality within specific rooms (e.g., order-specific chats).
-  socket.on("send-message",async (message)=>{
-    console.log("Received message:", message);
-    try {
-      const response = await axios.post(`${process.env.NEXT_BASE_URL}/api/chat/save`, message);
-      console.log("Message saved successfully:", response.data);
-    } catch (error) {
-      console.error("Error saving message:", error.response?.data || error.message);
+  socket.on('update-location',async ({latitude,longitude})=>{
+    if(!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+    const userId=socket.data.userId;
+    const location={type:'Point',coordinates:[longitude,latitude]};
+    try{
+      await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/update-location`,{
+        userId,
+        location
+      },{headers:internalHeaders});
+      io.emit('update-deliveryBoy-location',{userId,location});
+    }catch(error){
+      console.error('Error updating location:',error.response?.data || error.message);
     }
-    io.to(message.roomId).emit("send-message", message);
-  })
+  });
 
- 
+  socket.on('join-room',(roomId)=>{
+    if(typeof roomId==='string' && roomId.length<=100) socket.join(roomId);
+  });
 
-  socket.on('disconnect',()=>{
-    console.log('user disconnected',socket.id);
-  
-})
-})
+  socket.on('send-message',async (incomingMessage)=>{
+    const message={...incomingMessage,senderId:socket.data.userId};
+    try{
+      await axios.post(`${process.env.NEXT_BASE_URL}/api/chat/save`,message,{headers:internalHeaders});
+      io.to(message.roomId).emit('send-message',message);
+    }catch(error){
+      console.error('Error saving message:',error.response?.data || error.message);
+    }
+  });
 
-// Defines an HTTP POST endpoint at /notify that accepts a JSON payload containing a socketId, event name, and data. If a socketId is provided, it emits the specified event with the data to that specific socket. If no socketId is provided, it broadcasts the event to all connected clients. This allows external services or parts of the application to trigger real-time events on the clients via HTTP requests.
+  socket.on('disconnect',async ()=>{
+    try{
+      await axios.post(`${process.env.NEXT_BASE_URL}/api/socket/disconnect`,{
+        socketId:socket.id
+      },{headers:internalHeaders});
+    }catch(error){
+      console.error('Error updating disconnected user:',error.response?.data || error.message);
+    }
+  });
+});
+
 app.post('/notify',(req,res)=>{
-  const {event,data,socketId}=req.body;
-  if(socketId){
+  if(req.headers['x-socket-secret']!==socketSecret){
+    return res.status(401).json({success:false,message:'Unauthorized'});
+  }
+
+  const {event,data,socketId,socketIds}=req.body;
+  if(typeof event!=='string') return res.status(400).json({success:false,message:'Invalid event'});
+
+  if(Array.isArray(socketIds) && socketIds.length>0){
+    io.to(socketIds).emit(event,data);
+  }else if(socketId){
     io.to(socketId).emit(event,data);
   }else{
     io.emit(event,data);
   }
-  return res.status(200).json({"success":true});
-})
+  return res.status(200).json({success:true});
+});
 
+app.get('/health',(_req,res)=>res.status(200).json({status:'ok'}));
 
 server.listen(port,()=>{
   console.log(`server is running on port ${port}`);
-})
+});
