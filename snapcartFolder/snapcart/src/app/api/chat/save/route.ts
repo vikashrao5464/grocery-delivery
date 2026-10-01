@@ -7,10 +7,14 @@ import Order from "@/models/order.model";
 
 
 import { NextRequest, NextResponse } from "next/server";
+import { isInternalSocketRequest } from "@/lib/socketSecurity";
 
 // API endpoint to save a chat message for a specific order
 export async function POST(req:NextRequest){
   try{
+    if(!isInternalSocketRequest(req)){
+      return NextResponse.json({message:"Unauthorized"},{status:401});
+    }
     // Establish connection to MongoDB
     await connectDb();
     // Extract message details from request body

@@ -7,6 +7,7 @@ import DeliveryAssignment from "@/models/deliveryAssignment.model";
 import Order from "@/models/order.model";
 // Import Next.js server utilities
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // POST handler to verify delivery OTP
 export async function POST(req:NextRequest){
@@ -15,6 +16,11 @@ export async function POST(req:NextRequest){
    await connectDb();
    // Parse orderId and otp from request body
    const {orderId,otp}=await req.json();
+   const session=await auth();
+
+   if(!session?.user?.id || session.user.role!=="deliveryBoy"){
+    return NextResponse.json({message:"Unauthorized"},{status:401});
+   }
    
    // Validate required fields
    if(!orderId || !otp){
@@ -34,10 +40,33 @@ export async function POST(req:NextRequest){
     )
    }
 
-   // Verify OTP matches
-   if(order.deliveryOtp!==otp){
+   if(!order.deliveryOtpExpiresAt || order.deliveryOtpExpiresAt.getTime()<=Date.now()){
+    order.deliveryOtp=null;
+    order.deliveryOtpExpiresAt=null;
+    await order.save();
     return NextResponse.json(
-      {message:"Incorrect or Expired OTP"},
+      {message:"OTP has expired. Please resend a new OTP."},
+      {status:400}
+    )
+   }
+
+   const assignment=await DeliveryAssignment.findOne({
+    order:order._id,
+    assignedTo:session.user.id,
+    status:"assigned"
+   });
+
+   if(!assignment){
+    return NextResponse.json(
+      {message:"This order is not assigned to you"},
+      {status:403}
+    )
+   }
+
+   // Verify OTP matches
+   if(order.deliveryOtp!==String(otp)){
+    return NextResponse.json(
+      {message:"Incorrect OTP"},
       {status:400}
     )
    }
@@ -46,6 +75,8 @@ export async function POST(req:NextRequest){
    order.status="delivered";
    // Mark OTP as verified
    order.deliveryOtpVerification=true;
+   order.deliveryOtp=null;
+   order.deliveryOtpExpiresAt=null;
    // Set delivery timestamp
    order.deliveredAt=new Date();
    // Save updated order

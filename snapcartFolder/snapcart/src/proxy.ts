@@ -13,6 +13,7 @@ export async function proxy(req:NextRequest){
      "/register",
      "/api/auth",
      "/api/socket/connect", 
+     "/api/socket/disconnect",
      "/api/socket/update-location",       // Socket.IO server needs to call this
      "/api/chat/save",                    // Socket.IO server saves chat messages
      "/api/user/stripe/webhook",   // Old webhook path - also must be public
@@ -37,13 +38,13 @@ if(!session){
 
 const role = session.user?.role;
 
-if(pathname.startsWith("/admin") && role !== "admin"){
+if((pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) && role !== "admin"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
-if(pathname.startsWith("/delivery") && role !== "deliveryBoy"){
+if((pathname.startsWith("/delivery") || pathname.startsWith("/api/delivery")) && role !== "deliveryBoy"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
-if(pathname.startsWith("/user") && role !== "user"){
+if((pathname.startsWith("/user") || pathname.startsWith("/api/user")) && !pathname.startsWith("/api/user/stripe/webhook") && role !== "user"){
   return NextResponse.redirect(new URL("/unauthorized", req.url));
 }
 

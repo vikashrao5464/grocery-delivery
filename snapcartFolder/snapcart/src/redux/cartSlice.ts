@@ -8,12 +8,12 @@ interface IGrocery{
   _id:string,
   name:string,  
   category:string,
-  price:String,
+  price:number,
   unit:string,
   quantity:number,
   image:string,
-  createdAt:Date,
-  updatedAt:Date,
+  createdAt:Date | string,
+  updatedAt:Date | string,
 
 }
 
@@ -39,6 +39,18 @@ const cartSlice=createSlice({
     addToCart:(state,action:PayloadAction<IGrocery>)=>{
       state.cartData.push(action.payload)
       // call calculateTotals reducer to update the total amount whenever an item is added to the cart
+      cartSlice.caseReducers.calculateTotals(state)
+    },
+
+    addItemsToCart:(state,action:PayloadAction<IGrocery[]>)=>{
+      action.payload.forEach((newItem)=>{
+        const existingItem=state.cartData.find((item)=>item._id===newItem._id)
+        if(existingItem){
+          existingItem.quantity+=newItem.quantity
+        }else{
+          state.cartData.push(newItem)
+        }
+      })
       cartSlice.caseReducers.calculateTotals(state)
     },
 
@@ -71,6 +83,11 @@ const cartSlice=createSlice({
       cartSlice.caseReducers.calculateTotals(state)
     },
 
+    hydrateCart:(state,action:PayloadAction<IGrocery[]>)=>{
+      state.cartData=action.payload
+      cartSlice.caseReducers.calculateTotals(state)
+    },
+
     // reducres for calculating the total amount of the cart
     calculateTotals:(state)=>{
       // here reduce is used to iterate through the cartData array and calculate the total amount,its initial value is 0 which is passed as second argument to reduce
@@ -82,6 +99,6 @@ const cartSlice=createSlice({
   }
 })
 // exporting the action to be used in the components
-export const {addToCart,increaseQuantity,decreaseQuantity,removeFromCart}=cartSlice.actions
+export const {addToCart,addItemsToCart,increaseQuantity,decreaseQuantity,removeFromCart,hydrateCart}=cartSlice.actions
 // exporting the reducer to be used in the store
 export default cartSlice.reducer

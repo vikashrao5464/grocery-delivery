@@ -10,19 +10,19 @@ import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice
 import { RootState } from '@/redux/store';
 
 
-interface IGrocery{
+export interface GroceryItem{
   _id:string,
   name:string,
   category:string,
-  price:String,
+  price:number,
   unit:string,
   image:string,
-  createdAt:Date,
-  updatedAt:Date,
+  createdAt:Date | string,
+  updatedAt:Date | string,
 
 }
 
-function GroceryItemCard({item}: {item: IGrocery}) {
+function GroceryItemCard({item}: {item: GroceryItem}) {
   const dispatch = useDispatch<AppDispatch>();
   // getting the cart data from the redux store
   const { cartData} = useSelector((state: RootState) => state.cart);

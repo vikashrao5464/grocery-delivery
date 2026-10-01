@@ -4,12 +4,20 @@ import DeliveryAssignment from "@/models/deliveryAssignment.model";
 import Order from "@/models/order.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function POST(req:NextRequest,context:{ params: Promise<{ orderId: string; }>; }){
   try{
+    const session=await auth();
+    if(session?.user?.role!=="admin"){
+      return NextResponse.json({message:"Unauthorized"},{status:403});
+    }
     await connectDb();
     const {orderId}=await context.params;
     const {status}=await req.json();
+    if(!["pending","out of delivery","delivered"].includes(status)){
+      return NextResponse.json({message:"Invalid order status"},{status:400});
+    }
     
     console.log("Updating order:", orderId, "to status:", status);
 
@@ -20,7 +28,13 @@ export async function POST(req:NextRequest,context:{ params: Promise<{ orderId: 
     }
 
     order.status=status;
-    let deliveryBoysPayload:any[] = [];
+    let deliveryBoysPayload:Array<{
+      id:string;
+      name:string;
+      mobile?:string;
+      latitude:number;
+      longitude:number;
+    }> = [];
     
     // Clear assignment if status is changed away from "out of delivery"
     if(status !== "out of delivery" && order.assignment){
@@ -37,6 +51,8 @@ export async function POST(req:NextRequest,context:{ params: Promise<{ orderId: 
 
       const nearByDeliveryBoys=await User.find({
         role:"deliveryBoy",
+        isOnline:true,
+        "socketIds.0":{$exists:true},
         location:{
           $near:{
             $geometry:{
@@ -89,18 +105,18 @@ export async function POST(req:NextRequest,context:{ params: Promise<{ orderId: 
       // emit new assignment event to available delivery
       for(const boyId of candidates){
         const boy=await User.findById(boyId);
-        if(boy.socketId){
+        if(boy.socketIds?.length){
           await emitEventHandler(
             "new-assignment",
             deliveryAssignment,
-            boy.socketId)
+            boy.socketIds)
         }
       }
       
       // link order with assignment
       order.assignment=deliveryAssignment._id;
       deliveryBoysPayload=availableDeliveryBoys.map(b=>({
-         id:b._id,
+         id:String(b._id),
          name:b.name,
          mobile:b.mobile,
         latitude:b.location.coordinates[1],

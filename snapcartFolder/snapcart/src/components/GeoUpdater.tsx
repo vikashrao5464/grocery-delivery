@@ -1,12 +1,29 @@
 'use client'
 import { getSocket } from '@/lib/socket';
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 function GeoUpdater({userId}:{userId:string}) {
  
-  let socket=getSocket();
+  const socket=getSocket();
 
-  socket.emit("identity",userId);
+  useEffect(()=>{
+    if(!userId) return;
+
+    const identifyUser=()=>{
+      socket.emit("identity");
+    }
+
+    socket.on("connect",identifyUser);
+
+    if(socket.connected){
+      identifyUser();
+    }
+
+    return()=>{
+      socket.off("connect",identifyUser);
+    }
+  },[socket,userId])
+
   useEffect(()=>{
   if(!userId) return;
   if(!navigator.geolocation) return;
@@ -29,7 +46,7 @@ function GeoUpdater({userId}:{userId:string}) {
 
 
   return()=>navigator.geolocation.clearWatch(watcher);
-  },[userId])
+  },[socket,userId])
 
   return null;
 }

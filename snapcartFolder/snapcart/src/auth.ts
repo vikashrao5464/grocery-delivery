@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials"
 import connectDb from "./lib/db"
 import User from "./models/user.model";
 import bcrypt from "bcryptjs";
-import google from "@auth/core/providers/google";
+import Google from "next-auth/providers/google";
 
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -14,7 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password:{label:"Password",type:"password"}
 
       },
-      async authorize(credentials,request){
+      async authorize(credentials){
        await connectDb();
        const email=credentials.email;
        const password=credentials.password as string;
@@ -34,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
        }
       }
     }),
-    google({
+    Google({
       clientId:process.env.GOOGLE_CLIENT_ID as string,
       clientSecret:process.env.GOOGLE_CLIENT_SECRET as string
     })
@@ -72,9 +72,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
    jwt({token,user,trigger,session}){
     if(user){
-      token.id=user.id
-      token.email=user.email,
-      token.name=user.name,
+      token.id=user.id;
+      token.email=user.email;
+      token.name=user.name;
       // token.role=user.role this is only available in runtime  we cannot directly assign .we have to typecast it globally in   next-auth.d.ts
       token.role=user.role
     }

@@ -139,7 +139,6 @@ function Checkout() {
     }
     try {
       const result = await axios.post("/api/user/order", {
-        userId: userData?._id,
         items: cartData.map((item) => ({
           grocery: item._id,
           name: item.name,
@@ -149,7 +148,6 @@ function Checkout() {
           image: item.image,
 
         })),
-        totalAmount: finalTotal,
         address: {
           fullName: address.fullName,
           mobile: address.mobile,
@@ -176,7 +174,6 @@ function Checkout() {
     }
     try {
       const result = await axios.post("/api/user/payment", {
-        userId: userData?._id,
         items: cartData.map((item) => ({
           grocery: item._id,
           name: item.name,
@@ -186,7 +183,6 @@ function Checkout() {
           image: item.image,
 
         })),
-        totalAmount: finalTotal,
         address: {
           fullName: address.fullName,
           mobile: address.mobile,

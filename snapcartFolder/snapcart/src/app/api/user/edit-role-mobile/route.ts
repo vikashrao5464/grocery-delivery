@@ -9,6 +9,12 @@ export async function POST(req:NextRequest){
     await connectDb();
     const {role,mobile}=await req.json();
     const session=await auth();
+    if(!session?.user?.email){
+      return NextResponse.json({message:"Unauthorized"},{status:401});
+    }
+    if(!["user","deliveryBoy"].includes(role) || !/^\d{10}$/.test(String(mobile))){
+      return NextResponse.json({message:"Invalid role or mobile number"},{status:400});
+    }
     const user=await User.findOneAndUpdate({email:session?.user?.email},{role,mobile},{new:true});
     if(!user){
       return NextResponse.json({message:"user not found"},{status:404});

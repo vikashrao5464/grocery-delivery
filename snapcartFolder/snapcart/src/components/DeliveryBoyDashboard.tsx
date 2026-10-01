@@ -49,6 +49,29 @@ const [showOtpBox,setShowOtpBox]=useState(false);
 const [otpError,setOtpError]=useState("");
 const [sendOtpLoading,setSendOtpLoading]=useState(false);
 const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
+const [otpExpiresAt,setOtpExpiresAt]=useState<number | null>(null);
+const [otpSecondsLeft,setOtpSecondsLeft]=useState(0);
+const [resendCooldown,setResendCooldown]=useState(0);
+
+useEffect(()=>{
+  if(!showOtpBox || !otpExpiresAt) return;
+
+  const updateCountdown=()=>{
+    setOtpSecondsLeft(Math.max(0,Math.ceil((otpExpiresAt-Date.now())/1000)));
+  }
+
+  updateCountdown();
+  const timer=window.setInterval(updateCountdown,1000);
+  return()=>window.clearInterval(timer);
+},[showOtpBox,otpExpiresAt])
+
+useEffect(()=>{
+  if(resendCooldown<=0) return;
+  const timer=window.setInterval(()=>{
+    setResendCooldown((seconds)=>Math.max(0,seconds-1));
+  },1000);
+  return()=>window.clearInterval(timer);
+},[resendCooldown])
 
   // Fetch all broadcasted delivery assignments for this delivery boy
   const fetchAssignments=async()=>{
@@ -152,15 +175,19 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
   // Function to send OTP to customer for delivery verification after marking order as delivered
   const sendOtp=async()=>{
     setSendOtpLoading(true);
+    setOtpError("");
     try{
       
       const result=await axios.post('/api/delivery/otp/send',{orderId:activeOrder.order._id})
       setShowOtpBox(true);
-      console.log(result.data)
-      setSendOtpLoading(true);
+      setOtp("");
+      setOtpExpiresAt(new Date(result.data.expiresAt).getTime());
+      setResendCooldown(30);
     }catch(error){
       console.log("error sending OTP:",error)
-      setSendOtpLoading(true);
+      setOtpError(axios.isAxiosError(error) ? error.response?.data?.message || "Unable to send OTP" : "Unable to send OTP");
+    }finally{
+      setSendOtpLoading(false);
     }
   }
 
@@ -179,7 +206,7 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
       setVerifyOtpLoading(false);
       window.location.reload();
     }catch(error){
-     setOtpError("OTP verification error")
+     setOtpError(axios.isAxiosError(error) ? error.response?.data?.message || "OTP verification error" : "OTP verification error")
      setVerifyOtpLoading(false);
     }
   }
@@ -298,7 +325,23 @@ const [verifyOtpLoading,setVerifyOtpLoading]=useState(false);
             {showOtpBox && 
             <div className='mt-4'>
               <input type='text' className='w-full py-3 border rounded-lg text-center' placeholder='Enter OTP' maxLength={4} onChange={(e)=>setOtp(e.target.value)} value={otp}/>
-              <button className='w-full mt-4 bg-blue-600 text-white text-center py-3 rounded-lg' onClick={verifyOtp}>{verifyOtpLoading? <Loader size={16} className='animate-spin text-white'/>:"Verify OTP"}</button>
+              <p className={`mt-2 text-center text-sm ${otpSecondsLeft>0?'text-gray-600':'text-red-600'}`}>
+                {otpSecondsLeft>0
+                  ? `OTP expires in ${Math.floor(otpSecondsLeft/60)}:${String(otpSecondsLeft%60).padStart(2,'0')}`
+                  : 'OTP expired. Please resend it.'}
+              </p>
+              <button disabled={verifyOtpLoading || otp.length!==4 || otpSecondsLeft===0} className='w-full mt-4 bg-blue-600 disabled:bg-gray-300 text-white text-center py-3 rounded-lg' onClick={verifyOtp}>{verifyOtpLoading? <Loader size={16} className='animate-spin text-white'/>:"Verify OTP"}</button>
+              <button
+                disabled={sendOtpLoading || resendCooldown>0}
+                className='w-full mt-3 border border-green-600 text-green-700 disabled:border-gray-300 disabled:text-gray-400 text-center py-3 rounded-lg'
+                onClick={sendOtp}
+              >
+                {sendOtpLoading
+                  ? 'Sending...'
+                  : resendCooldown>0
+                    ? `Resend OTP in ${resendCooldown}s`
+                    : 'Resend OTP'}
+              </button>
 
               {otpError && <div className='text-red-600 mt-2 '>{otpError}</div>}
             </div>

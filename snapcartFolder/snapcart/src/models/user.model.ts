@@ -18,7 +18,7 @@ import mongoose from "mongoose";
         default: number[];
     };
 };
-socketId:string | null;
+socketIds:string[];
 isOnline:boolean; 
 }
 
@@ -62,9 +62,9 @@ location:{
     // Default coordinates (longitude, latitude) set to (0, 0)
   }
 },
-socketId:{
-  type:String,
-  default:null
+  socketIds:{
+    type:[String],
+    default:[]
 },
 isOnline:{
   type:Boolean,

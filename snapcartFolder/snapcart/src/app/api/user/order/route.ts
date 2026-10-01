@@ -5,27 +5,34 @@ import { emitEventHandler } from "@/lib/emitEventHandler";
 import Order from "@/models/order.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { prepareOrderItems } from "@/lib/prepareOrder";
 
 export async function POST(req: NextRequest) {
   await connectDb();
   try {
-    const { userId, items, paymentMethod, address, totalAmount } =
+    const session=await auth();
+    if(!session?.user?.id || session.user.role!=="user"){
+      return NextResponse.json({message:"Unauthorized"},{status:401});
+    }
+    const { items, paymentMethod, address } =
       await req.json();
-    if (!userId || !items || !paymentMethod || !address || !totalAmount) {
+    if (!items || paymentMethod!=="cod" || !address) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 },
       );
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(session.user.id);
     if (!user) {
       return NextResponse.json({ message: "user not found" }, { status: 404 });
     }
 
+    const {orderItems,totalAmount}=await prepareOrderItems(items);
     const newOrder = await Order.create({
-      user: userId,
-      items,
+      user: session.user.id,
+      items:orderItems,
       paymentMethod,
       totalAmount,
       address,

@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
-import { hostname } from "os";
 
 const nextConfig: NextConfig = {
+  turbopack:{
+    root:process.cwd()
+  },
   /* config options here */
   images:{
     remotePatterns:[

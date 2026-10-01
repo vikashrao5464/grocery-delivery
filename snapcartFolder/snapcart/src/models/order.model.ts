@@ -32,6 +32,7 @@ export interface IOrder{
   createdAt?:Date,
   updatedAt?:Date,
   deliveryOtp:string | null,
+  deliveryOtpExpiresAt:Date | null,
   deliveryOtpVerification:boolean,
   deliveredAt:Date
 
@@ -93,10 +94,14 @@ status:{
   enum:["pending","out of delivery" , "delivered"],
   default:"pending"
 },
-deliveryOtp:{
-  type:String,
-  default:null
-},
+  deliveryOtp:{
+    type:String,
+    default:null
+  },
+  deliveryOtpExpiresAt:{
+    type:Date,
+    default:null
+  },
 deliveryOtpVerification:{
   type:Boolean,
   default:false
