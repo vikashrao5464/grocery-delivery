@@ -1,9 +1,23 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {motion} from 'framer-motion'
 import { ArrowRight, CheckCircle, Package } from 'lucide-react'
 import Link from 'next/link'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/redux/store'
+import { clearCart } from '@/redux/cartSlice'
+import { useSession } from 'next-auth/react'
 function OrderSuccess() {
+  const dispatch=useDispatch<AppDispatch>()
+  const {data:session,status}=useSession()
+
+  useEffect(()=>{
+    if(status!=='authenticated' || !session.user?.id) return
+
+    localStorage.removeItem(`snapcart-cart:${session.user.id}`)
+    dispatch(clearCart())
+  },[dispatch,session?.user?.id,status])
+
   return (
     <div className='flex flex-col items-center justify-center min-h-[80vh] px-6 text-center bg-linear-to-b from-green-50 to-white'>
        

@@ -46,10 +46,12 @@ function StoreProvider({children}:{children:React.ReactNode}) {
 
     const unsubscribe=store.subscribe(()=>{
       try{
-        localStorage.setItem(
-          cartStorageKey,
-          JSON.stringify(store.getState().cart.cartData)
-        )
+        const cartData=store.getState().cart.cartData
+        if(cartData.length===0){
+          localStorage.removeItem(cartStorageKey)
+        }else{
+          localStorage.setItem(cartStorageKey,JSON.stringify(cartData))
+        }
       }catch(error){
         console.error('Failed to save cart:',error)
       }

@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
             isOnline: { $gt: [{ $size: "$socketIds" }, 0] },
           },
         },
-      ]
+      ],
+      { updatePipeline: true }
     );
 
     return NextResponse.json({ success: true }, { status: 200 });

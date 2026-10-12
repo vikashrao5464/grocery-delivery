@@ -83,6 +83,11 @@ const cartSlice=createSlice({
       cartSlice.caseReducers.calculateTotals(state)
     },
 
+    clearCart:(state)=>{
+      state.cartData=[]
+      cartSlice.caseReducers.calculateTotals(state)
+    },
+
     hydrateCart:(state,action:PayloadAction<IGrocery[]>)=>{
       state.cartData=action.payload
       cartSlice.caseReducers.calculateTotals(state)
@@ -99,6 +104,6 @@ const cartSlice=createSlice({
   }
 })
 // exporting the action to be used in the components
-export const {addToCart,addItemsToCart,increaseQuantity,decreaseQuantity,removeFromCart,hydrateCart}=cartSlice.actions
+export const {addToCart,addItemsToCart,increaseQuantity,decreaseQuantity,removeFromCart,clearCart,hydrateCart}=cartSlice.actions
 // exporting the reducer to be used in the store
 export default cartSlice.reducer
